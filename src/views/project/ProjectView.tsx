@@ -6,61 +6,53 @@ import useSound from "use-sound";
 export default function ProjectView({ data }: { data: IProject }) {
   console.log(data);
   const { images } = data;
-  const [viewWidth, setWidth] = useState(0);
+  const [slide, setSlide] = useState(0);
   const [play] = useSound(data.click_sound_url);
   const handleForward = () => {
-    const limit = images.length * 100 - 100;
-    if (viewWidth === limit) {
-      console.log("end");
-      return;
-    }
-    setWidth((prev) => prev + 100);
+    const limit = images.length - 1;
+    if (slide === limit) return;
+    setSlide((prev) => prev + 1);
     play();
   };
 
   const handleBackward = () => {
-    const limit = 0;
-    if (viewWidth === limit) {
-      console.log("begininging");
-      return;
-    }
-    setWidth((prev) => prev - 100);
+    if (slide === 0) return;
+    setSlide((prev) => prev - 1);
+
     play();
   };
   return (
     <>
-      <section className="h-screen w-screen relative bg-zinc50">
-        <div className={`flex w-full items-center overflow-hidden border-2`}>
-          {data.images.map((img) => {
-            return (
-              <div
-                key={img.id}
-                className={`h-screen w-screen flex-shrink-0 flex items-center border-2 justify-center px-4 -translate-x-[${viewWidth}%]`}
-              >
-                <div
-                  className={`${
-                    img.width > img.height ? "max-w-[600px]" : "max-w-[400px]"
-                  }`}
-                >
-                  <Image
-                    src={img.url}
-                    alt={data.title}
-                    width={img.width}
-                    height={img.height}
-                    className="res-img"
-                    loading="eager"
-                    quality={100}
-                    sizes="(max-width: 700px) 95vw,
+      <section className="w-full h-full relative bg-zinc50">
+        <div className={`flex w-full items-center overflow-x-scroll`}>
+          <div
+            key={slide}
+            className={`h-screen w-screen flex-shrink-0 flex items-center  justify-center px-4 ]`}
+          >
+            <div
+              className={`${
+                images[slide].width > images[slide].height
+                  ? "max-w-[600px]"
+                  : "max-w-[400px]"
+              }`}
+            >
+              <Image
+                src={images[slide].url}
+                alt={data.title}
+                width={images[slide].width}
+                height={images[slide].height}
+                className="res-img"
+                loading="eager"
+                quality={100}
+                sizes="(max-width: 700px) 95vw,
                     (max-width: 1200px) 80vw,
                     40vw"
-                  />
-                </div>
-              </div>
-            );
-          })}
+              />
+            </div>
+          </div>
         </div>
       </section>
-      <section className="absolute bg-zinc800 h-[60px] w-screen bottom-0 left-0 flex items-center justify-center">
+      <section className="absolute bg-zinc800 h-[60px] w-screen bottom-0 left-0 flex items-center justify-evenly">
         <BackwardBtn handleClick={handleBackward} />
         <ForwardBtn handleClick={handleForward} />
       </section>
