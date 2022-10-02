@@ -3,10 +3,11 @@ import {
   getProjectBySlug,
   getProjectSlugs,
 } from "../../providers/supabase/getData";
+import { IProject } from "../../providers/supabase/interfaces/I_supabase";
 import ProjectView from "../../views/project/ProjectView";
 
-export default function Project() {
-  return <ProjectView />;
+export default function Project({ data }: { data: IProject }) {
+  return <ProjectView data={data} />;
 }
 
 export const getStaticProps: GetStaticProps = async ({ params }) => {
