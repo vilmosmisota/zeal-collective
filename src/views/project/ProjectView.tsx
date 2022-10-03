@@ -1,10 +1,12 @@
 import Image from "next/future/image";
-import { IProject } from "../../providers/supabase/interfaces/I_supabase";
-import { useState } from "react";
+import {
+  IImage,
+  IProject,
+} from "../../providers/supabase/interfaces/I_supabase";
+import { useEffect, useState } from "react";
 import useSound from "use-sound";
 
 export default function ProjectView({ data }: { data: IProject }) {
-  console.log(data);
   const { images } = data;
   const [slide, setSlide] = useState(0);
   const [play] = useSound(data.click_sound_url);
@@ -18,38 +20,24 @@ export default function ProjectView({ data }: { data: IProject }) {
   const handleBackward = () => {
     if (slide === 0) return;
     setSlide((prev) => prev - 1);
-
     play();
   };
+
+  const sounds = images.map((item) => item.sound_effect);
   return (
     <>
-      <section className="w-full h-full relative bg-zinc50">
-        <div className={`flex w-full items-center overflow-x-scroll`}>
-          <div
-            key={slide}
-            className={`h-screen w-screen flex-shrink-0 flex items-center  justify-center px-4 ]`}
-          >
-            <div
-              className={`${
-                images[slide].width > images[slide].height
-                  ? "max-w-[600px]"
-                  : "max-w-[400px]"
-              }`}
-            >
-              <Image
-                src={images[slide].url}
-                alt={data.title}
-                width={images[slide].width}
-                height={images[slide].height}
-                className="res-img"
-                loading="eager"
-                quality={100}
-                sizes="(max-width: 700px) 95vw,
-                    (max-width: 1200px) 80vw,
-                    40vw"
+      <section className="h-screen w-screen relative bg-zinc50">
+        <div className={`flex w-full items-center overflow-hidden`}>
+          <SliderItem sliderItem={images[slide]} title={data.title} />
+          {images.map((item) => {
+            return (
+              <SliderBackgroundSound
+                sound={item.sound_effect}
+                key={item.url}
+                current={sounds[slide]}
               />
-            </div>
-          </div>
+            );
+          })}
         </div>
       </section>
       <section className="absolute bg-zinc800 h-[60px] w-screen bottom-0 left-0 flex items-center justify-evenly">
@@ -106,5 +94,69 @@ const BackwardBtn = ({ handleClick }: BackwardBtnProps) => {
         />
       </svg>
     </button>
+  );
+};
+
+const SliderItem = ({
+  sliderItem,
+  title,
+}: {
+  sliderItem: IImage;
+  title: string;
+}) => {
+  return (
+    <div
+      className={`h-screen w-screen flex-shrink-0 flex items-center  justify-center px-4 ]`}
+    >
+      <div
+        className={`${
+          sliderItem.width > sliderItem.height
+            ? "max-w-[600px]"
+            : "max-w-[400px]"
+        }`}
+      >
+        <Image
+          src={sliderItem.url}
+          alt={title}
+          width={sliderItem.width}
+          height={sliderItem.height}
+          className="res-img"
+          loading="eager"
+          quality={100}
+          sizes="(max-width: 700px) 95vw,
+                    (max-width: 1200px) 80vw,
+                    40vw"
+        />
+      </div>
+    </div>
+  );
+};
+
+type SliderBackgroundSoundProps = {
+  sound: string;
+  current: string;
+};
+
+const SliderBackgroundSound = ({
+  sound,
+  current,
+}: SliderBackgroundSoundProps) => {
+  const [isActive, setIsActive] = useState(false);
+  const [play, { stop }] = useSound(sound);
+  // console.log("slide", slide);
+  // console.log("prev", prev);
+
+  useEffect(() => {
+    if (sound !== current) {
+      stop();
+      return;
+    }
+    play();
+  }, [sound, current, play, stop]);
+
+  return (
+    <>
+      <input hidden readOnly value="text" name={sound} />
+    </>
   );
 };
