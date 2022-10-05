@@ -46,3 +46,14 @@ body.light {
 body.dark {
   background-color: #27272a;
 }
+
+/* html {
+  overflow: hidden;
+  width: 100%;
+}
+body {
+  height: 100%;
+  position: fixed;
+  overflow-y: scroll;
+  -webkit-overflow-scrolling: touch;
+} */

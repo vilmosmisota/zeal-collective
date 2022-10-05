@@ -28,10 +28,7 @@ export default function ProjectView({ data }: { data: IProject }) {
 
   const scrollToSlider = () => {
     if (!sliderSection.current) return;
-    window.scrollTo({
-      top: sliderSection.current.offsetTop,
-      behavior: "smooth",
-    });
+    window.scrollTo(0, 1);
   };
   return (
     <>
