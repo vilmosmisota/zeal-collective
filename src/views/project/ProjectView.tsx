@@ -3,13 +3,14 @@ import {
   IImage,
   IProject,
 } from "../../providers/supabase/interfaces/I_supabase";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import useSound from "use-sound";
 
 export default function ProjectView({ data }: { data: IProject }) {
   const { images } = data;
   const [slide, setSlide] = useState(0);
   const [play] = useSound(data.click_sound_url);
+  const sliderSection = useRef<null | HTMLElement>(null);
   const handleForward = () => {
     const limit = images.length - 1;
     if (slide === limit) return;
@@ -24,12 +25,31 @@ export default function ProjectView({ data }: { data: IProject }) {
   };
 
   const sounds = images.map((item) => item.sound_effect);
+
+  const scrollToSlider = () => {
+    if (!sliderSection.current) return;
+    window.scrollTo({
+      top: sliderSection.current.offsetTop,
+      behavior: "smooth",
+    });
+  };
   return (
     <>
-      <section className="h-screen w-screen relative bg-zinc50">
+      <header className="h-screen w-screen relative bg-zinc50 overflow-hidden">
+        <div className="mt-16">
+          <h1>{data.title}</h1>
+          <h3>{data.description}</h3>
+          <p>Artist</p>
+          <button onClick={scrollToSlider}>Play</button>
+        </div>
+      </header>
+      <main
+        ref={sliderSection}
+        className="h-screen w-screen relative bg-zinc50 overflow-hidden"
+      >
         <div className={`flex w-full items-center overflow-hidden`}>
           <SliderItem sliderItem={images[slide]} title={data.title} />
-          {images.map((item) => {
+          {/* {images.map((item) => {
             return (
               <SliderBackgroundSound
                 sound={item.sound_effect}
@@ -37,10 +57,10 @@ export default function ProjectView({ data }: { data: IProject }) {
                 current={sounds[slide]}
               />
             );
-          })}
+          })} */}
         </div>
-      </section>
-      <section className="absolute bg-zinc800 h-[60px] w-screen bottom-0 left-0 flex items-center justify-evenly">
+      </main>
+      <section className="fixed bg-zinc800 h-[60px] w-screen bottom-0 left-0 flex items-center justify-evenly">
         <BackwardBtn handleClick={handleBackward} />
         <ForwardBtn handleClick={handleForward} />
       </section>
@@ -152,6 +172,8 @@ const SliderBackgroundSound = ({
       return;
     }
     play();
+
+    return () => stop();
   }, [sound, current, play, stop]);
 
   return (
