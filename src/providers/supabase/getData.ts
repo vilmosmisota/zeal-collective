@@ -1,10 +1,12 @@
 import { supabase } from "../../libs/supabase";
-import { IProject } from "./interfaces/I_supabase";
+import { IProjectRaw } from "./interfaces/I_supabase";
 
-export const getProjectBySlug = async (slug: string): Promise<IProject> => {
+export const getProjectBySlug = async (slug: string): Promise<IProjectRaw> => {
   const { data, error } = await supabase
-    .from<IProject>("projects")
-    .select("*, artists:artist_id(first_name, last_name), images!inner(*)")
+    .from<IProjectRaw>("projects")
+    .select(
+      "*, artists:artist_id(id, first_name, last_name), frames!inner(*), images!inner(*)"
+    )
     .eq("slug", slug)
     .single();
 
@@ -18,7 +20,7 @@ export const getProjectBySlug = async (slug: string): Promise<IProject> => {
 
 export const getProjectSlugs = async () => {
   const { data, error } = await supabase
-    .from<IProject>("projects")
+    .from<IProjectRaw>("projects")
     .select("slug");
 
   if (error) {

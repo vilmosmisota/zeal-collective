@@ -39,7 +39,7 @@ const projectsMeta = [
     description:
       "Lorem ipsum dolor sit amet. Vel molestias voluptatem et molestias possimus non tempore tempore ut ipsam libero aut ullam nobis et quia minus aut eveniet recusandae.",
     tags: ["black and white, surf, community"],
-    slug: "demo-work",
+    slug: "echoes",
   },
   {
     featuredImg: {

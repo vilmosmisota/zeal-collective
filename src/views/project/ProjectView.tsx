@@ -1,51 +1,54 @@
 import Image from "next/future/image";
 import {
+  IFrame,
   IImage,
   IProject,
 } from "../../providers/supabase/interfaces/I_supabase";
-import { useEffect, useRef, useState } from "react";
+import {
+  MutableRefObject,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import useSound from "use-sound";
 
-export default function ProjectView({ data }: { data: IProject }) {
-  const { images } = data;
-  const [slide, setSlide] = useState(0);
-  const [play] = useSound(data.click_sound_url);
-  const sliderSection = useRef<null | HTMLElement>(null);
+import { ProjectProps } from "../../pages/project/[slug]";
+import { useWindowDimensions } from "../../utils/hooks";
+
+export default function ProjectView({ project }: ProjectProps) {
+  console.log(project);
+  // const { images } = data;
+  const [frameIndex, setFrameIndex] = useState(0);
+  // const [play] = useSound(data.click_sound_url);
+
   const handleForward = () => {
-    const limit = images.length - 1;
-    if (slide === limit) return;
-    setSlide((prev) => prev + 1);
-    play();
+    const limit = project.frames.length - 1;
+    if (frameIndex === limit) return;
+    setFrameIndex((prev) => prev + 1);
+    console.log(frameIndex);
   };
 
   const handleBackward = () => {
-    if (slide === 0) return;
-    setSlide((prev) => prev - 1);
-    play();
+    if (frameIndex === 0) return;
+    setFrameIndex((prev) => prev - 1);
   };
 
-  const sounds = images.map((item) => item.sound_effect);
+  // const sounds = images.map((item) => item.sound_effect);
 
-  const scrollToSlider = () => {
-    if (!sliderSection.current) return;
-    window.scrollTo(0, 1);
-  };
   return (
     <>
-      <header className="h-screen w-screen relative bg-zinc50 overflow-hidden">
+      {/* <header className="h-screen w-screen relative bg-zinc50 overflow-hidden">
         <div className="mt-16">
           <h1>{data.title}</h1>
           <h3>{data.description}</h3>
           <p>Artist</p>
-          <button onClick={scrollToSlider}>Play</button>
         </div>
-      </header>
-      <main
-        ref={sliderSection}
-        className="h-screen w-screen relative bg-zinc50 overflow-hidden"
-      >
-        <div className={`flex w-full items-center overflow-hidden`}>
-          <SliderItem sliderItem={images[slide]} title={data.title} />
+      </header> */}
+
+      <main className="h-screen w-screen relative bg-zinc50 overflow-hidden">
+        <div className={`flex w-full items-center overflow-x-scroll`}>
+          <SliderFrame frame={project.frames[frameIndex]} />
           {/* {images.map((item) => {
             return (
               <SliderBackgroundSound
@@ -114,39 +117,66 @@ const BackwardBtn = ({ handleClick }: BackwardBtnProps) => {
   );
 };
 
-const SliderItem = ({
-  sliderItem,
-  title,
-}: {
-  sliderItem: IImage;
-  title: string;
-}) => {
+const SliderFrame = ({ frame }: { frame: IFrame }) => {
+  const imgRef = useRef<HTMLDivElement | null>(null);
+  const vw = useAutoSrcsetSize(imgRef, frame.id);
+
+  useEffect(() => {
+    console.log("vw", vw);
+  }, [vw]);
+
   return (
     <div
-      className={`h-screen w-screen flex-shrink-0 flex items-center  justify-center px-4 ]`}
+      className={`h-screen w-screen flex-shrink-0 flex items-center justify-start md:justify-center md:overflow-hidden overflow-scroll`}
     >
-      <div
-        className={`${
-          sliderItem.width > sliderItem.height
-            ? "max-w-[600px]"
-            : "max-w-[400px]"
-        }`}
-      >
-        <Image
-          src={sliderItem.url}
-          alt={title}
-          width={sliderItem.width}
-          height={sliderItem.height}
-          className="res-img"
-          loading="eager"
-          quality={100}
-          sizes="(max-width: 700px) 95vw,
-                    (max-width: 1200px) 80vw,
-                    40vw"
-        />
-      </div>
+      {frame.images.map((img) => {
+        return (
+          <div
+            ref={imgRef}
+            className={`w-full aspect-[${img.width}/${
+              img.height
+            }]  ${getImageSize(img.size)} ${getImageLayout(img.position)}`}
+            key={img.url}
+          >
+            <Image
+              src={img.url}
+              alt={"title"}
+              width={img.width}
+              height={img.height}
+              className="cover-img"
+              loading="eager"
+              quality={100}
+              sizes={`${vw}vw`}
+            />
+          </div>
+        );
+      })}
     </div>
   );
+};
+
+const getImageLayout = (position: "left" | "center" | "right" | "cover") => {
+  const left = "ml-4 mr-auto";
+  const right = "mr-4 ml-auto";
+  const center = "mx-4";
+  const cover = "m-0";
+
+  if (position === "left") return left;
+  if (position === "right") return right;
+  if (position === "center") return center;
+  if (position === "cover") return cover;
+  return "";
+};
+
+const getImageSize = (size: "small" | "large" | "full") => {
+  const small = "max-w-[500px]";
+  const large = "max-w-[700px]";
+  const full = "w-auto md:w-screen h-screen";
+
+  if (size === "small") return small;
+  if (size === "large") return large;
+  if (size === "full") return full;
+  return "";
 };
 
 type SliderBackgroundSoundProps = {
@@ -160,8 +190,6 @@ const SliderBackgroundSound = ({
 }: SliderBackgroundSoundProps) => {
   const [isActive, setIsActive] = useState(false);
   const [play, { stop }] = useSound(sound);
-  // console.log("slide", slide);
-  // console.log("prev", prev);
 
   useEffect(() => {
     if (sound !== current) {
@@ -178,4 +206,25 @@ const SliderBackgroundSound = ({
       <input hidden readOnly value="text" name={sound} />
     </>
   );
+};
+
+const useAutoSrcsetSize = (
+  ref: MutableRefObject<HTMLDivElement | null>,
+  id: number
+) => {
+  const [vw, setVw] = useState(0);
+  const [width, setWidth] = useState(0);
+  const { width: windowWidth } = useWindowDimensions();
+
+  useEffect(() => {
+    if (!ref.current) return;
+    setWidth(ref.current.offsetWidth);
+  }, [ref, id]);
+
+  useEffect(() => {
+    if (width === 0 && windowWidth === 0) return;
+    setVw(Math.floor((width / windowWidth) * 100));
+  }, [width, windowWidth, vw, id]);
+
+  return vw;
 };

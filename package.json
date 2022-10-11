@@ -12,6 +12,7 @@
     "lint-staged": "lint-staged"
   },
   "dependencies": {
+    "@react-three/postprocessing": "^2.6.2",
     "@supabase/supabase-js": "^1.35.7",
     "framer-motion": "^7.5.0",
     "jest-environment-jsdom": "^28.1.1",
