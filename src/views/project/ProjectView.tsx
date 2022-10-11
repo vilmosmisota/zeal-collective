@@ -61,8 +61,11 @@ export default function ProjectView({ project }: ProjectProps) {
         </div>
       </main>
       <section className="fixed bg-zinc800 h-[60px] w-screen bottom-0 left-0 flex items-center justify-evenly">
-        <BackwardBtn handleClick={handleBackward} />
-        <ForwardBtn handleClick={handleForward} />
+        <div className=" flex ">
+          <BackwardBtn handleClick={handleBackward} />
+          <PlayBtn />
+          <ForwardBtn handleClick={handleForward} />
+        </div>
       </section>
     </>
   );
@@ -78,9 +81,9 @@ const ForwardBtn = ({ handleClick }: ForwardBtnProps) => {
         xmlns="http://www.w3.org/2000/svg"
         fill="none"
         viewBox="0 0 24 24"
-        strokeWidth="1.5"
-        stroke="#fff"
-        className="w-6 h-6"
+        strokeWidth={1.5}
+        stroke="currentColor"
+        className="w-6 h-6 text-peach400"
       >
         <path
           strokeLinecap="round"
@@ -104,8 +107,8 @@ const BackwardBtn = ({ handleClick }: BackwardBtnProps) => {
         fill="none"
         viewBox="0 0 24 24"
         strokeWidth={1.5}
-        stroke="#fff"
-        className="w-6 h-6"
+        stroke="currentColor"
+        className="w-6 h-6 text-peach400"
       >
         <path
           strokeLinecap="round"
@@ -117,17 +120,36 @@ const BackwardBtn = ({ handleClick }: BackwardBtnProps) => {
   );
 };
 
+const PlayBtn = () => {
+  return (
+    <button className="mx-4">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+        strokeWidth={1.5}
+        stroke="currentColor"
+        className="w-6 h-6 text-peach400"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z"
+        />
+      </svg>
+    </button>
+  );
+};
+
 const SliderFrame = ({ frame }: { frame: IFrame }) => {
   const imgRef = useRef<HTMLDivElement | null>(null);
   const vw = useAutoSrcsetSize(imgRef, frame.id);
 
-  useEffect(() => {
-    console.log("vw", vw);
-  }, [vw]);
-
   return (
     <div
-      className={`h-screen w-screen flex-shrink-0 flex items-center justify-start md:justify-center md:overflow-hidden overflow-scroll`}
+      className={`${getFrameTheme(
+        frame.color_theme
+      )}  h-screen w-screen   flex-shrink-0 flex items-center justify-center overflow-hidden`}
     >
       {frame.images.map((img) => {
         return (
@@ -143,7 +165,7 @@ const SliderFrame = ({ frame }: { frame: IFrame }) => {
               alt={"title"}
               width={img.width}
               height={img.height}
-              className="cover-img"
+              className=" md:object-cover md:h-full md:w-full"
               loading="eager"
               quality={100}
               sizes={`${vw}vw`}
@@ -156,10 +178,10 @@ const SliderFrame = ({ frame }: { frame: IFrame }) => {
 };
 
 const getImageLayout = (position: "left" | "center" | "right" | "cover") => {
-  const left = "ml-4 mr-auto";
-  const right = "mr-4 ml-auto";
-  const center = "mx-4";
-  const cover = "m-0";
+  const left = "mx-4 md:ml-4 md:mr-auto";
+  const right = "mx-4 md:mr-4 md:ml-auto";
+  const center = "mx-4 md:mx-4";
+  const cover = "mx-4 md:m-0";
 
   if (position === "left") return left;
   if (position === "right") return right;
@@ -169,9 +191,9 @@ const getImageLayout = (position: "left" | "center" | "right" | "cover") => {
 };
 
 const getImageSize = (size: "small" | "large" | "full") => {
-  const small = "max-w-[500px]";
-  const large = "max-w-[700px]";
-  const full = "w-auto md:w-screen h-screen";
+  const small = "md:max-w-[500px]";
+  const large = "md:max-w-[700px]";
+  const full = "md:w-screen md:h-screen";
 
   if (size === "small") return small;
   if (size === "large") return large;
@@ -182,6 +204,14 @@ const getImageSize = (size: "small" | "large" | "full") => {
 type SliderBackgroundSoundProps = {
   sound: string;
   current: string;
+};
+
+const getFrameTheme = (theme: "light" | "dark") => {
+  const dark = "bg-zinc800";
+  const light = "bg-zinc50";
+  if (theme === "light") return light;
+  if (theme === "dark") return dark;
+  return "";
 };
 
 const SliderBackgroundSound = ({
