@@ -1,119 +1,77 @@
 import { useEffect, useRef } from "react";
+import { useWindowDimensions } from "../../utils/hooks";
 
 export default function GrainCanvas() {
-  const canvasRef = useRef<null | HTMLCanvasElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const grainRef = useRef<HTMLCanvasElement | null>(null);
+  const { width: windowWidth, height: windowHeight } = useWindowDimensions();
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    const grainCanvas = grainRef.current;
+    const patternSize = 150;
+    const patternScaleX = 1;
+    const patternScaleY = 1;
+    const patternRefreshInterval = 3; // 8
+    const patternAlpha = 15;
+    const patternPixelDataLength = patternSize * patternSize * 4; // rgba = 4
+    let frame = 0;
+    let animationFrameId: number;
 
-  // useEffect(() => {
-  //   if (!canvasRef.current) return;
+    if (!canvas) return;
+    canvas.width = windowWidth;
+    canvas.height = windowHeight;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    ctx.scale(patternScaleX, patternScaleY);
 
-  //   // change these settings
-  //   const patternSize = 64;
-  //   const patternScaleX = 3;
-  //   const patternScaleY = 1;
-  //   const patternRefreshInterval = 4;
-  //   const patternAlpha = 25;
-  //   const patternPixelDataLength = patternSize * patternSize * 4;
-  //   let patternCanvas;
-  //   let patternCtx;
-  //   let patternData;
-  //   const frame = 0;
+    if (!grainCanvas) return;
+    grainCanvas.width = patternSize;
+    grainCanvas.height = patternSize;
+    const grainCtx = grainCanvas.getContext("2d");
+    if (!grainCtx) return;
+    const grainData = grainCtx.createImageData(patternSize, patternSize);
 
-  //   const canvas = canvasRef.current;
-  //   const viewWidth = canvasRef.current.width;
-  //   const viewHeight = canvasRef.current.height;
-  //   const context = canvas.getContext("2d");
+    const update = () => {
+      let value;
 
-  //   let animationFrameId: number;
-  //   //Our first draw
+      for (let i = 0; i < patternPixelDataLength; i += 4) {
+        value = (Math.random() * 255) | 0;
 
-  //   if (!context) return;
-  //   // context.fillStyle = "#000000";
-  //   // context.fillRect(0, 0, context.canvas.width, context.canvas.height);
+        grainData.data[i] = value;
+        grainData.data[i + 1] = value;
+        grainData.data[i + 2] = value;
+        grainData.data[i + 3] = patternAlpha;
+      }
 
-  //   function initGrain() {
-  //     patternCanvas = document.createElement("canvas");
-  //     patternCanvas.width = patternSize;
-  //     patternCanvas.height = patternSize;
-  //     patternCtx = patternCanvas.getContext("2d");
-  //     patternData = patternCtx.createImageData(patternSize, patternSize);
-  //   }
+      grainCtx.putImageData(grainData, 0, 0);
+    };
 
-  //   function update() {
-  //     let value;
+    const draw = () => {
+      ctx.clearRect(0, 0, windowWidth, windowHeight);
 
-  //     for (let i = 0; i < patternPixelDataLength; i += 4) {
-  //       value = (Math.random() * 255) | 0;
+      const pattern = ctx.createPattern(grainCanvas, "repeat");
+      if (!pattern) return;
+      ctx.fillStyle = pattern;
+      ctx.fillRect(0, 0, windowWidth, windowHeight);
+    };
 
-  //       patternData.data[i] = value;
-  //       patternData.data[i + 1] = value;
-  //       patternData.data[i + 2] = value;
-  //       patternData.data[i + 3] = patternAlpha;
-  //     }
+    function loop() {
+      if (++frame % patternRefreshInterval === 0) {
+        update();
+        draw();
+      }
 
-  //     patternCtx.putImageData(patternData, 0, 0);
-  //   }
+      animationFrameId = window.requestAnimationFrame(loop);
+    }
+    loop();
 
-  //   // function initCanvas() {
-  //   //     viewWidth = context.width = context.clientWidth;
-  //   //     viewHeight = context.height = context.clientHeight;
-  //   //     ctx = context.getContext('2d');
-
-  //   //     ctx.scale(patternScaleX, patternScaleY);
-  //   // }
-
-  //   // create a canvas which will be used as a pattern
-  //   function initGrain() {
-  //     patternCanvas = document.createElement("canvas");
-  //     patternCanvas.width = patternSize;
-  //     patternCanvas.height = patternSize;
-  //     patternCtx = patternCanvas.getContext("2d");
-  //     patternData = patternCtx.createImageData(patternSize, patternSize);
-  //   }
-
-  //   // put a random shade of gray into every pixel of the pattern
-  //   function update() {
-  //     var value;
-
-  //     for (var i = 0; i < patternPixelDataLength; i += 4) {
-  //       value = (Math.random() * 255) | 0;
-
-  //       patternData.data[i] = value;
-  //       patternData.data[i + 1] = value;
-  //       patternData.data[i + 2] = value;
-  //       patternData.data[i + 3] = patternAlpha;
-  //     }
-
-  //     patternCtx.putImageData(patternData, 0, 0);
-  //   }
-
-  //   // fill the canvas using the pattern
-  //   function draw() {
-  //     ctx.clearRect(0, 0, viewWidth, viewHeight);
-
-  //     ctx.fillStyle = ctx.createPattern(patternCanvas, "repeat");
-  //     ctx.fillRect(0, 0, viewWidth, viewHeight);
-  //   }
-
-  //   function loop() {
-  //     if (++frame % patternRefreshInterval === 0) {
-  //       update();
-  //       draw();
-  //     }
-
-  //     requestAnimationFrame(loop);
-  //   }
-
-  //   const render = () => {
-  //     initCanvas();
-  //     initGrain();
-  //     requestAnimationFrame(loop);
-  //   };
-  //   render();
-
-  //   return () => {
-  //     window.cancelAnimationFrame(animationFrameId);
-  //   };
-  // }, []);
-
-  return <canvas ref={canvasRef} />;
+    return () => {
+      window.cancelAnimationFrame(animationFrameId);
+    };
+  }, [windowWidth, windowHeight]);
+  return (
+    <canvas className="absolute w-full h-full top-0 left-0 z-0" ref={canvasRef}>
+      <canvas ref={grainRef} />
+    </canvas>
+  );
 }

@@ -15,6 +15,7 @@ import useSound from "use-sound";
 
 import { ProjectProps } from "../../pages/project/[slug]";
 import { useWindowDimensions } from "../../utils/hooks";
+import GrainCanvas from "../../components/canvas/GrainCanvas";
 
 export default function ProjectView({ project }: ProjectProps) {
   console.log(project);
@@ -47,7 +48,7 @@ export default function ProjectView({ project }: ProjectProps) {
       </header> */}
 
       <main className="h-screen w-screen relative bg-zinc50 overflow-hidden">
-        <div className={`flex w-full items-center overflow-x-scroll`}>
+        <div className={`flex w-full items-center overflow-hidden`}>
           <SliderFrame frame={project.frames[frameIndex]} />
           {/* {images.map((item) => {
             return (
@@ -60,7 +61,7 @@ export default function ProjectView({ project }: ProjectProps) {
           })} */}
         </div>
       </main>
-      <section className="fixed bg-zinc800 h-[60px] w-screen bottom-0 left-0 flex items-center justify-evenly">
+      <section className="fixed z-30 bg-zinc800 h-[60px] w-screen bottom-0 left-0 flex items-center justify-evenly">
         <div className=" flex ">
           <BackwardBtn handleClick={handleBackward} />
           <PlayBtn />
@@ -151,11 +152,12 @@ const SliderFrame = ({ frame }: { frame: IFrame }) => {
         frame.color_theme
       )}  h-screen w-screen   flex-shrink-0 flex items-center justify-center overflow-hidden`}
     >
+      <GrainCanvas />
       {frame.images.map((img) => {
         return (
           <div
             ref={imgRef}
-            className={`w-full aspect-[${img.width}/${
+            className={`z-10 w-full aspect-[${img.width}/${
               img.height
             }]  ${getImageSize(img.size)} ${getImageLayout(img.position)}`}
             key={img.url}
