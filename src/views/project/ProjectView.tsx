@@ -35,20 +35,28 @@ export default function ProjectView({ project }: ProjectProps) {
     setFrameIndex((prev) => prev - 1);
   };
 
+  const scrollToBottom = () => {
+    window.scrollTo({
+      top: document.documentElement.scrollHeight,
+      behavior: "smooth",
+    });
+  };
+
   // const sounds = images.map((item) => item.sound_effect);
 
   return (
     <>
       {/* <header className="h-screen w-screen relative bg-zinc50 overflow-hidden">
         <div className="mt-16">
-          <h1>{data.title}</h1>
-          <h3>{data.description}</h3>
+          <h1>{project.title}</h1>
+          <h3>{project.description}</h3>
           <p>Artist</p>
+          <button onClick={scrollToBottom}>play</button>
         </div>
       </header> */}
 
-      <main className="h-screen w-screen relative bg-zinc50 overflow-hidden">
-        <div className={`flex w-full items-center overflow-hidden`}>
+      <main className=" h-[calc(100vh-120px)] w-screen relative bg-zinc50">
+        <div className={`flex w-full items-center`}>
           <SliderFrame frame={project.frames[frameIndex]} />
           {/* {images.map((item) => {
             return (
@@ -61,7 +69,7 @@ export default function ProjectView({ project }: ProjectProps) {
           })} */}
         </div>
       </main>
-      <section className="fixed z-30 bg-zinc800 h-[60px] w-screen bottom-0 left-0 flex items-center justify-evenly">
+      <section className="z-30 relative bg-zinc800 h-[60px] w-screen  flex items-center justify-evenly">
         <div className=" flex ">
           <BackwardBtn handleClick={handleBackward} />
           <PlayBtn />
@@ -150,7 +158,7 @@ const SliderFrame = ({ frame }: { frame: IFrame }) => {
     <div
       className={`${getFrameTheme(
         frame.color_theme
-      )}  h-screen w-screen   flex-shrink-0 flex items-center justify-center overflow-hidden`}
+      )}  h-[calc(100vh-120px)] w-screen   flex-shrink-0 flex items-center justify-center overflow-hidden`}
     >
       <GrainCanvas />
       {frame.images.map((img) => {
