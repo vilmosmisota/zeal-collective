@@ -22,6 +22,7 @@ export default function ProjectView({ project }: ProjectProps) {
   // const { images } = data;
   const [frameIndex, setFrameIndex] = useState(0);
   // const [play] = useSound(data.click_sound_url);
+  const { height: windowHeight } = useWindowDimensions();
 
   const handleForward = () => {
     const limit = project.frames.length - 1;
@@ -35,27 +36,22 @@ export default function ProjectView({ project }: ProjectProps) {
     setFrameIndex((prev) => prev - 1);
   };
 
-  const scrollToBottom = () => {
-    window.scrollTo({
-      top: document.documentElement.scrollHeight,
-      behavior: "smooth",
-    });
-  };
-
   // const sounds = images.map((item) => item.sound_effect);
 
   return (
     <>
-      {/* <header className="h-screen w-screen relative bg-zinc50 overflow-hidden">
+      {/* <header className="h-full  w-screen relative bg-zinc50 overflow-hidden">
         <div className="mt-16">
-          <h1>{project.title}</h1>
-          <h3>{project.description}</h3>
+          <h1>{data.title}</h1>
+          <h3>{data.description}</h3>
           <p>Artist</p>
-          <button onClick={scrollToBottom}>play</button>
         </div>
       </header> */}
 
-      <main className=" h-[calc(100vh-120px)] w-screen relative bg-zinc50">
+      <main
+        className={`border-2 w-screen overscroll-contain relative bg-zinc50`}
+        style={{ height: `${windowHeight}px` }}
+      >
         <div className={`flex w-full items-center`}>
           <SliderFrame frame={project.frames[frameIndex]} />
           {/* {images.map((item) => {
@@ -69,7 +65,7 @@ export default function ProjectView({ project }: ProjectProps) {
           })} */}
         </div>
       </main>
-      <section className="z-30 relative bg-zinc800 h-[60px] w-screen  flex items-center justify-evenly">
+      <section className="z-30 fixed bottom-0 left-0 bg-zinc800 h-[60px] w-screen  flex items-center justify-evenly">
         <div className=" flex ">
           <BackwardBtn handleClick={handleBackward} />
           <PlayBtn />
@@ -152,20 +148,21 @@ const PlayBtn = () => {
 
 const SliderFrame = ({ frame }: { frame: IFrame }) => {
   const imgRef = useRef<HTMLDivElement | null>(null);
-  const vw = useAutoSrcsetSize(imgRef, frame.id);
+  const { vw, windowHeight } = useAutoSrcsetSize(imgRef, frame.id);
 
   return (
     <div
       className={`${getFrameTheme(
         frame.color_theme
-      )}  h-[calc(100vh-120px)] w-screen   flex-shrink-0 flex items-center justify-center overflow-hidden`}
+      )} h-full w-screen overscroll-contain  flex-shrink-0 flex items-center justify-center`}
+      style={{ height: `${windowHeight}px` }}
     >
       <GrainCanvas />
       {frame.images.map((img) => {
         return (
           <div
             ref={imgRef}
-            className={`z-10 w-full aspect-[${img.width}/${
+            className={`z-10 w-full touch-none md:aspect-[${img.width}/${
               img.height
             }]  ${getImageSize(img.size)} ${getImageLayout(img.position)}`}
             key={img.url}
@@ -175,7 +172,7 @@ const SliderFrame = ({ frame }: { frame: IFrame }) => {
               alt={"title"}
               width={img.width}
               height={img.height}
-              className=" md:object-cover md:h-full md:w-full"
+              className=" md:object-cover md:h-full md:w-full w-full h-auto"
               loading="eager"
               quality={100}
               sizes={`${vw}vw`}
@@ -203,7 +200,7 @@ const getImageLayout = (position: "left" | "center" | "right" | "cover") => {
 const getImageSize = (size: "small" | "large" | "full") => {
   const small = "md:max-w-[500px]";
   const large = "md:max-w-[700px]";
-  const full = "md:w-screen md:h-screen";
+  const full = "w-[700px] md:w-screen md:h-screen";
 
   if (size === "small") return small;
   if (size === "large") return large;
@@ -254,7 +251,7 @@ const useAutoSrcsetSize = (
 ) => {
   const [vw, setVw] = useState(0);
   const [width, setWidth] = useState(0);
-  const { width: windowWidth } = useWindowDimensions();
+  const { width: windowWidth, height: windowHeight } = useWindowDimensions();
 
   useEffect(() => {
     if (!ref.current) return;
@@ -266,5 +263,5 @@ const useAutoSrcsetSize = (
     setVw(Math.floor((width / windowWidth) * 100));
   }, [width, windowWidth, vw, id]);
 
-  return vw;
+  return { vw, windowHeight };
 };
