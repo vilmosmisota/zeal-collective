@@ -12,6 +12,7 @@ import {
   useState,
 } from "react";
 import useSound from "use-sound";
+import { motion, AnimatePresence } from "framer-motion";
 
 import { ProjectProps } from "../../pages/project/[slug]";
 import { useWindowDimensions } from "../../utils/hooks";
@@ -49,12 +50,13 @@ export default function ProjectView({ project }: ProjectProps) {
       </header> */}
 
       <main
-        className={`border-2 w-screen overscroll-contain relative bg-zinc50`}
+        className={`border-2 w-screen overscroll-contain overflow-hidden relative bg-zinc50`}
         style={{ height: `${windowHeight}px` }}
       >
         <div className={`flex w-full items-center`}>
-          <SliderFrame frame={project.frames[frameIndex]} />
-          {/* {images.map((item) => {
+          <AnimatePresence>
+            <SliderFrame frame={project.frames[frameIndex]} />
+            {/* {images.map((item) => {
             return (
               <SliderBackgroundSound
                 sound={item.sound_effect}
@@ -63,6 +65,7 @@ export default function ProjectView({ project }: ProjectProps) {
               />
             );
           })} */}
+          </AnimatePresence>
         </div>
       </main>
       <section className="z-30 fixed bottom-0 left-0 bg-zinc800 h-[60px] w-screen  flex items-center justify-evenly">
@@ -151,11 +154,15 @@ const SliderFrame = ({ frame }: { frame: IFrame }) => {
   const { vw, windowHeight } = useAutoSrcsetSize(imgRef, frame.id);
 
   return (
-    <div
+    <motion.div
+      key={frame.id}
       className={`${getFrameTheme(
         frame.color_theme
       )} h-full w-screen overscroll-contain  flex-shrink-0 flex items-center justify-center`}
       style={{ height: `${windowHeight}px` }}
+      animate={{ opacity: 1 }}
+      initial={{ opacity: 0 }}
+      exit={{ opacity: 0, y: 500 }}
     >
       <GrainCanvas />
       {frame.images.map((img) => {
@@ -180,7 +187,7 @@ const SliderFrame = ({ frame }: { frame: IFrame }) => {
           </div>
         );
       })}
-    </div>
+    </motion.div>
   );
 };
 
