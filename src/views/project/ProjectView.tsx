@@ -15,7 +15,7 @@ import useSound from "use-sound";
 import { motion, AnimatePresence } from "framer-motion";
 
 import { ProjectProps } from "../../pages/project/[slug]";
-import { useWindowDimensions } from "../../utils/hooks";
+import { useLogger, useWindowDimensions } from "../../utils/hooks";
 import GrainCanvas from "../../components/canvas/GrainCanvas";
 
 export default function ProjectView({ project }: ProjectProps) {
@@ -39,6 +39,8 @@ export default function ProjectView({ project }: ProjectProps) {
 
   // const sounds = images.map((item) => item.sound_effect);
 
+  useLogger(frameIndex + 1);
+
   return (
     <>
       {/* <header className="h-full  w-screen relative bg-zinc50 overflow-hidden">
@@ -54,9 +56,13 @@ export default function ProjectView({ project }: ProjectProps) {
         style={{ height: `${windowHeight}px` }}
       >
         <div className={`flex w-full items-center`}>
-          <AnimatePresence>
-            <SliderFrame frame={project.frames[frameIndex]} />
-            {/* {images.map((item) => {
+          {/* <AnimatePresence> */}
+          <GrainCanvas />
+          <SliderFrame frame={project.frames[frameIndex]} />
+          {project.frames.length > frameIndex + 1 && (
+            <SliderFrameToPreload frame={project.frames[frameIndex + 1]} />
+          )}
+          {/* {images.map((item) => {
             return (
               <SliderBackgroundSound
                 sound={item.sound_effect}
@@ -65,7 +71,7 @@ export default function ProjectView({ project }: ProjectProps) {
               />
             );
           })} */}
-          </AnimatePresence>
+          {/* </AnimatePresence> */}
         </div>
       </main>
       <section className="z-30 fixed bottom-0 left-0 bg-zinc800 h-[60px] w-screen  flex items-center justify-evenly">
@@ -154,40 +160,44 @@ const SliderFrame = ({ frame }: { frame: IFrame }) => {
   const { vw, windowHeight } = useAutoSrcsetSize(imgRef, frame.id);
 
   return (
-    <motion.div
-      key={frame.id}
-      className={`${getFrameTheme(
-        frame.color_theme
-      )} h-full w-screen overscroll-contain  flex-shrink-0 flex items-center justify-center`}
-      style={{ height: `${windowHeight}px` }}
-      animate={{ opacity: 1 }}
-      initial={{ opacity: 0 }}
-      exit={{ opacity: 0, y: 500 }}
-    >
-      <GrainCanvas />
-      {frame.images.map((img) => {
-        return (
-          <div
-            ref={imgRef}
-            className={`z-10 w-full touch-none md:aspect-[${img.width}/${
-              img.height
-            }]  ${getImageSize(img.size)} ${getImageLayout(img.position)}`}
-            key={img.url}
-          >
-            <Image
-              src={img.url}
-              alt={"title"}
-              width={img.width}
-              height={img.height}
-              className=" md:object-cover md:h-full md:w-full w-full h-auto"
-              loading="eager"
-              quality={100}
-              sizes={`${vw}vw`}
-            />
-          </div>
-        );
-      })}
-    </motion.div>
+    <AnimatePresence>
+      <motion.div
+        key={frame.id}
+        className={`${getFrameTheme(
+          frame.color_theme
+        )} h-full w-screen overscroll-contain  flex-shrink-0 flex items-center justify-center`}
+        style={{ height: `${windowHeight}px` }}
+      >
+        {frame.images.map((img, i) => {
+          return (
+            <motion.div
+              animate={{
+                opacity: 1,
+                transition: { duration: 1, delay: i > 0 ? i * 0.5 : 1 },
+              }}
+              initial={{ opacity: 0 }}
+              exit={{ opacity: 0 }}
+              ref={imgRef}
+              className={`z-10 w-full touch-none md:aspect-[${img.width}/${
+                img.height
+              }]  ${getImageSize(img.size)} ${getImageLayout(img.position)}`}
+              key={img.url}
+            >
+              <Image
+                src={img.url}
+                alt={"title"}
+                width={img.width}
+                height={img.height}
+                className=" md:object-cover md:h-full md:w-full w-full h-auto"
+                loading="eager"
+                quality={100}
+                sizes={`${vw}vw`}
+              />
+            </motion.div>
+          );
+        })}
+      </motion.div>
+    </AnimatePresence>
   );
 };
 
@@ -207,7 +217,7 @@ const getImageLayout = (position: "left" | "center" | "right" | "cover") => {
 const getImageSize = (size: "small" | "large" | "full") => {
   const small = "md:max-w-[500px]";
   const large = "md:max-w-[700px]";
-  const full = "w-[700px] md:w-screen md:h-screen";
+  const full = " md:w-screen md:h-screen";
 
   if (size === "small") return small;
   if (size === "large") return large;
@@ -271,4 +281,42 @@ const useAutoSrcsetSize = (
   }, [width, windowWidth, vw, id]);
 
   return { vw, windowHeight };
+};
+
+const SliderFrameToPreload = ({ frame }: { frame: IFrame }) => {
+  const imgRef = useRef<HTMLDivElement | null>(null);
+  const { vw, windowHeight } = useAutoSrcsetSize(imgRef, frame.id);
+
+  return (
+    <div
+      key={frame.id}
+      className={`${getFrameTheme(
+        frame.color_theme
+      )} h-full w-screen overscroll-contain  flex-shrink-0 flex items-center justify-center absolute left-0 top-0 opacity-0 -z-10`}
+      style={{ height: `${windowHeight}px` }}
+    >
+      {frame.images.map((img) => {
+        return (
+          <div
+            ref={imgRef}
+            className={`z-10 w-full touch-none md:aspect-[${img.width}/${
+              img.height
+            }]  ${getImageSize(img.size)} ${getImageLayout(img.position)}`}
+            key={img.url}
+          >
+            <Image
+              src={img.url}
+              alt={"title"}
+              width={img.width}
+              height={img.height}
+              className=" md:object-cover md:h-full md:w-full w-full h-auto"
+              loading="eager"
+              quality={100}
+              sizes={`${vw}vw`}
+            />
+          </div>
+        );
+      })}
+    </div>
+  );
 };
