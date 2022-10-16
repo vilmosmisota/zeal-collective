@@ -47,4 +47,5 @@ export interface IProject {
   tags: string[];
   frames: IFrame[];
   click_sound_url: string;
+  featured_img: string;
 }

@@ -58,6 +58,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
           first_name: data.artists.first_name,
           last_name: data.artists.last_name,
         },
+        featured_img: data.featured_img,
         title: data.title,
         description: data.description,
         click_sound_url: data.click_sound_url,
