@@ -4,7 +4,7 @@ type PlayBtnProps = {
 
 export const PlayBtn = ({ handleClick }: PlayBtnProps) => {
   return (
-    <button className="mx-4 md:mx-8" onClick={handleClick}>
+    <button className="mx-3 md:mx-8" onClick={handleClick}>
       <svg
         xmlns="http://www.w3.org/2000/svg"
         fill="none"
