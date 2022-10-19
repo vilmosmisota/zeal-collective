@@ -55,11 +55,11 @@ export default function ProjectView({ project }: ProjectProps) {
     if (!b64) return;
     if (!mainSoundRef) return;
 
-    mainSoundRef.src = `data:audio/mpeg;base64,${b64}`;
+    // mainSoundRef.src = `data:audio/mpeg;base64,${b64}`;
 
     if (isPausePlay) {
-      mainSoundRef.play().catch((err) => console.warn(err));
       setAnalyzer(new AudioAnalyzer(mainSoundRef));
+      mainSoundRef.play().catch((err) => console.warn(err));
     } else {
       mainSoundRef.pause();
     }
@@ -172,9 +172,8 @@ export default function ProjectView({ project }: ProjectProps) {
           </div>
           <audio
             ref={mainSoundtrackRef}
-            // src={
-            //   `data:audio/mpeg;base64,${b64}`
-            // }
+            crossOrigin="anonymous"
+            src="https://kyvqisljtzamvrttkpad.supabase.co/storage/v1/object/sign/soundtracks/01.%20The%20Mark%20(Interlude).mp3?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiJzb3VuZHRyYWNrcy8wMS4gVGhlIE1hcmsgKEludGVybHVkZSkubXAzIiwiaWF0IjoxNjY2MDIyMzY0LCJleHAiOjE5ODEzODIzNjR9._243msyX6P-sl_DDfgx4o33hzn0DjBWhM6_N4dXeD2Y"
             loop
           />
         </section>
