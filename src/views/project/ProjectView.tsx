@@ -56,9 +56,8 @@ export default function ProjectView({ project }: ProjectProps) {
     if (!mainSoundRef) return;
 
     // mainSoundRef.src = `data:audio/mpeg;base64,${b64}`;
-
+    setAnalyzer(new AudioAnalyzer(mainSoundRef));
     if (isPausePlay) {
-      setAnalyzer(new AudioAnalyzer(mainSoundRef));
       mainSoundRef.play().catch((err) => console.warn(err));
     } else {
       mainSoundRef.pause();
