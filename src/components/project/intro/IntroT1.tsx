@@ -7,6 +7,7 @@ type IntroTemplate1Props = {
   name: string;
   featured_img: string;
   handleClick: () => void;
+  handleSounds: () => void;
 };
 
 export default function IntroT1({
@@ -15,6 +16,7 @@ export default function IntroT1({
   name,
   featured_img,
   handleClick,
+  handleSounds,
 }: IntroTemplate1Props) {
   return (
     <header className="absolute top-0 p-4 left-0 h-full w-full z-40 bg-zinc50 overflow-y-scroll flex justify-center items-center flex-col md:flex-row">
@@ -23,6 +25,7 @@ export default function IntroT1({
         <p>by</p>
         <h3 className="mb-4 md:mb-12">{name}</h3>
         <p className="text">{description}</p>
+        <button onClick={handleSounds}>Load sounds</button>
       </div>
       <div
         onClick={handleClick}
