@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useLogger } from "../../utils/hooks";
 import { useAudioBuffer } from "./audioBuffers";
 
 // export default function audioMix({
@@ -211,7 +212,11 @@ type AudioMixProps = {
 
 export const useAudioMix = ({ actx, buffers }: AudioMixProps) => {
   const [offset, setOffset] = useState(0);
+  const [loopCount, setLoopCount] = useState(0);
+  let intervalID: string | number | NodeJS.Timeout | undefined;
   const buffs = buffers;
+
+  useLogger(loopCount);
 
   type PlayAudioProps = {
     actx: AudioContext;
@@ -221,6 +226,12 @@ export const useAudioMix = ({ actx, buffers }: AudioMixProps) => {
       isRunning: boolean;
       audio: AudioBuffer;
     };
+  };
+
+  const callInterval = (buffDuration: number) => {
+    intervalID = setInterval(() => {
+      setLoopCount((prev) => prev + 1);
+    }, buffDuration * 1000);
   };
   const playAudio = ({ actx, audio }: PlayAudioProps) => {
     if (!audio.isActive || audio.isRunning) return;
@@ -239,20 +250,39 @@ export const useAudioMix = ({ actx, buffers }: AudioMixProps) => {
       audioSource.start();
       setOffset(actx.currentTime);
       audio.isRunning = true;
-
-      console.log("offset", offset);
-      console.log("actx current time", actx.currentTime);
-    } else {
-      audioSource.start(0, actx.currentTime - audio.audio.duration - offset);
-      const newOff = actx.currentTime - offset;
-      const audioLength = audio.audio.duration;
-      const afterLoop = actx.currentTime - audio.audio.duration - offset;
-      console.log("newOffset", newOff);
-      console.log("audioLength", audioLength);
-      console.log("afterLopp", afterLoop);
-
-      audio.isRunning = true;
+      return;
     }
+    if (loopCount === 0) {
+      audioSource.start(0, actx.currentTime - offset);
+      console.log("loop 0 but offset is gone");
+      audio.isRunning = true;
+      return;
+    }
+    if (loopCount > 0) {
+      const loopedDuration = audio.audio.duration * loopCount;
+      audioSource.start(0, loopedDuration - offset);
+      audio.isRunning = true;
+      console.log("looped duration", loopedDuration);
+      console.log("loop passed 0");
+      return;
+    }
+
+    // else {
+    //   audioSource.start(0, actx.currentTime - audio.audio.duration - offset);
+    //   const newOff = actx.currentTime - offset;
+    //   const audioLength = audio.audio.duration;
+    //   const afterLoop = actx.currentTime - audio.audio.duration - offset;
+    //   console.log("newOffset", newOff);
+    //   console.log("audioLength", audioLength);
+    //   console.log("afterLopp", afterLoop);
+
+    //   audio.isRunning = true;
+    // }
+  };
+
+  const startLoopCount = () => {
+    if (!buffs) return;
+    callInterval(buffs[0].audio.duration);
   };
 
   const startMix = () => {
@@ -263,10 +293,10 @@ export const useAudioMix = ({ actx, buffers }: AudioMixProps) => {
     });
   };
 
-  const updateBuffers = () => {
+  const updateBuffers = (num: number) => {
     if (!buffs) return;
-    buffs[1].isActive = true;
+    buffs[num].isActive = true;
   };
 
-  return { updateBuffers, startMix };
+  return { updateBuffers, startMix, startLoopCount };
 };
