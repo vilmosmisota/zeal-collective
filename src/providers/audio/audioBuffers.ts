@@ -1,13 +1,4 @@
-// const sounds = [
-//   {
-//     name: "beat",
-//     path: "https://kyvqisljtzamvrttkpad.supabase.co/storage/v1/object/sign/soundtracks/beat_1.wav?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiJzb3VuZHRyYWNrcy9iZWF0XzEud2F2IiwiaWF0IjoxNjY2Mjk5NTgyLCJleHAiOjE5ODE2NTk1ODJ9.8pmjqjpn-xZyaZZyc2MZ0d1c6xDbGm4tH95TJX5pf78&t=2022-10-20T20%3A59%3A41.272Z",
-//   },
-//   {
-//     name: "synth",
-//     path: "https://kyvqisljtzamvrttkpad.supabase.co/storage/v1/object/sign/soundtracks/lead%20synth_1.wav?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiJzb3VuZHRyYWNrcy9sZWFkIHN5bnRoXzEud2F2IiwiaWF0IjoxNjY2MzA3MDcxLCJleHAiOjE5ODE2NjcwNzF9.0roCqmexR4HiPWd-0dNZr56XqUl5pWumGtL4LzDpuow&t=2022-10-20T23%3A04%3A29.974Z",
-//   },
-// ];
+
 
 import { useEffect, useState } from "react";
 
@@ -16,7 +7,7 @@ type AudioBuffersProps = {
   sounds: {
     name: string;
     path: string;
-    isActive: boolean;
+    frame: number[];
   }[];
 };
 
@@ -34,12 +25,18 @@ export async function loadAudioBuffers({ actx, sounds }: AudioBuffersProps) {
       // const bufferSource = actx.createBufferSource();
       // bufferSource.buffer = buffer;
       // bufferSource.connect(actx.destination);
+      const audioSource = new AudioBufferSourceNode(actx, {
+        buffer: buffer,
+      });
+      audioSource.connect(actx.destination);
+      audioSource.loop = true;
 
       return {
         name: sound.name,
-        isActive: sound.isActive,
-        isRunning: false,
+        frame: sound.frame,
+        state: 'connected',
         audio: buffer,
+        audioSource: audioSource
       };
     })
   );
@@ -52,17 +49,19 @@ type UseAudioBufferProps = {
   sounds: {
     name: string;
     path: string;
-    isActive: boolean;
+    frame: number[];
   }[];
 };
 
 export const useAudioBuffer = ({ actx, sounds }: UseAudioBufferProps) => {
+  
   const [buffers, setBuffers] = useState<
     | {
         name: string;
-        isActive: boolean;
+        frame: number[];
         audio: AudioBuffer;
-        isRunning: boolean;
+        audioSource: AudioBufferSourceNode;
+        state: string
       }[]
     | null
   >(null);
@@ -84,7 +83,7 @@ export const useAudioBuffer = ({ actx, sounds }: UseAudioBufferProps) => {
 //   frameIndex,
 // }: {
 //   buffers: AudioBuffer[] | null;
-//   frameIndex: number;
+//   frameIndex: number[];
 // }) => {
 //   const [buffersToPlay, setBuffersToPlay] = useState<AudioBuffer[] | null>(
 //     null

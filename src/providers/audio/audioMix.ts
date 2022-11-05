@@ -203,9 +203,10 @@ type AudioMixProps = {
   buffers:
     | {
         name: string;
-        isActive: boolean;
-        isRunning: boolean;
+        frame: number[];
+        state: string;
         audio: AudioBuffer;
+        audioSource: AudioBufferSourceNode;
       }[]
     | null;
 };
@@ -216,16 +217,18 @@ export const useAudioMix = ({ actx, buffers }: AudioMixProps) => {
   let intervalID: string | number | NodeJS.Timeout | undefined;
   const buffs = buffers;
 
-  useLogger(loopCount);
+  
 
   type PlayAudioProps = {
     actx: AudioContext;
     audio: {
       name: string;
-      isActive: boolean;
-      isRunning: boolean;
+      frame: number[];
+      state: string;
       audio: AudioBuffer;
+      audioSource: AudioBufferSourceNode;
     };
+    frameIndex: number
   };
 
   const callInterval = (buffDuration: number) => {
@@ -233,51 +236,68 @@ export const useAudioMix = ({ actx, buffers }: AudioMixProps) => {
       setLoopCount((prev) => prev + 1);
     }, buffDuration * 1000);
   };
-  const playAudio = ({ actx, audio }: PlayAudioProps) => {
-    if (!audio.isActive || audio.isRunning) return;
-    const audioSource = new AudioBufferSourceNode(actx, {
-      buffer: audio.audio,
-    });
-    audioSource.connect(actx.destination);
-    audioSource.loop = true;
+  const playAudio = ({ actx, audio, frameIndex }: PlayAudioProps) => {
+    if (audio.frame.includes(frameIndex) === false && audio.state === "connected") return;
+    if (audio.frame.includes(frameIndex) === true && audio.state === "playing") return;
 
-    // audioSource.start(0, actx.currentTime - offset);
-    // audio.isRunning = true;
-    console.log("loopend", audioSource.loopEnd);
-    console.log(offset);
+    if (audio.frame.includes(frameIndex) === false && audio.state === "playing") {
+        audio.audioSource.stop()
+        audio.audioSource.disconnect()
+        audio.state = "stopped";
+        return
+    };
 
-    if (offset === 0) {
-      audioSource.start();
-      setOffset(actx.currentTime);
-      audio.isRunning = true;
+    if (offset === 0 && loopCount === 0) {
+      if (audio.state === 'stopped') {
+        const audioSource = new AudioBufferSourceNode(actx, {
+          buffer: audio.audio,
+        });
+        audioSource.connect(actx.destination);
+        audioSource.loop = true;
+        audioSource.start();
+        setOffset(actx.currentTime);
+        audio.state = "playing"; 
+      } else {
+        audio.audioSource.start();
+        setOffset(actx.currentTime);
+        audio.state = "playing";
+      }
+       
       return;
     }
-    if (loopCount === 0) {
+    if (offset > 0 && loopCount === 0) {
+      if (audio.state === 'stopped') {
+        const audioSource = new AudioBufferSourceNode(actx, {
+        buffer: audio.audio,
+      });
+      audioSource.connect(actx.destination);
+      audioSource.loop = true;
       audioSource.start(0, actx.currentTime - offset);
-      console.log("loop 0 but offset is gone");
-      audio.isRunning = true;
+      audio.state = "playing";
+      } else {
+        console.log(audio.state)
+        audio.audioSource.start(0, actx.currentTime - offset);
+        audio.state = "playing";
+      }
       return;
     }
-    if (loopCount > 0) {
-      const loopedDuration = audio.audio.duration * loopCount;
-      audioSource.start(0, loopedDuration - offset);
-      audio.isRunning = true;
-      console.log("looped duration", loopedDuration);
-      console.log("loop passed 0");
+    if (offset > 0 && loopCount > 0) {
+      if (audio.state === "stopped") {
+        const audioSource = new AudioBufferSourceNode(actx, {
+          buffer: audio.audio,
+        });
+        audioSource.connect(actx.destination);
+        audioSource.loop = true;
+        const loopedDuration = audio.audio.duration * loopCount;
+        audioSource.start(0, actx.currentTime - loopedDuration - offset);
+        audio.state = "playing";
+      } else {
+        const loopedDuration = audio.audio.duration * loopCount;
+        audio.audioSource.start(0, actx.currentTime - loopedDuration - offset);
+        audio.state = "playing";
+      }
       return;
     }
-
-    // else {
-    //   audioSource.start(0, actx.currentTime - audio.audio.duration - offset);
-    //   const newOff = actx.currentTime - offset;
-    //   const audioLength = audio.audio.duration;
-    //   const afterLoop = actx.currentTime - audio.audio.duration - offset;
-    //   console.log("newOffset", newOff);
-    //   console.log("audioLength", audioLength);
-    //   console.log("afterLopp", afterLoop);
-
-    //   audio.isRunning = true;
-    // }
   };
 
   const startLoopCount = () => {
@@ -285,18 +305,22 @@ export const useAudioMix = ({ actx, buffers }: AudioMixProps) => {
     callInterval(buffs[0].audio.duration);
   };
 
-  const startMix = () => {
+  const startSoundtrack = () => {
     if (!buffs) return;
+    startLoopCount()
     buffs.forEach((audio) => {
       if (!actx) return;
-      playAudio({ actx, audio });
+      playAudio({ actx, audio, frameIndex:0 });
     });
   };
 
-  const updateBuffers = (num: number) => {
+  const changeFrameSoundtrack = (frameIndex: number) => {
     if (!buffs) return;
-    buffs[num].isActive = true;
-  };
+    buffs.forEach((audio) => {
+      if (!actx) return;
+      playAudio({ actx, audio, frameIndex });
+    });
+  }
 
-  return { updateBuffers, startMix, startLoopCount };
+  return { changeFrameSoundtrack, startSoundtrack};
 };
