@@ -217,8 +217,6 @@ export const useAudioMix = ({ actx, buffers }: AudioMixProps) => {
   let intervalID: string | number | NodeJS.Timeout | undefined;
   const buffs = buffers;
 
-  
-
   type PlayAudioProps = {
     actx: AudioContext;
     audio: {
@@ -228,7 +226,7 @@ export const useAudioMix = ({ actx, buffers }: AudioMixProps) => {
       audio: AudioBuffer;
       audioSource: AudioBufferSourceNode;
     };
-    frameIndex: number
+    frameIndex: number;
   };
 
   const callInterval = (buffDuration: number) => {
@@ -237,45 +235,57 @@ export const useAudioMix = ({ actx, buffers }: AudioMixProps) => {
     }, buffDuration * 1000);
   };
   const playAudio = ({ actx, audio, frameIndex }: PlayAudioProps) => {
-    if (audio.frame.includes(frameIndex) === false && audio.state === "connected") return;
-    if (audio.frame.includes(frameIndex) === true && audio.state === "playing") return;
+    // console.log("---------");
+    // console.log(audio);
+    if (
+      audio.frame.includes(frameIndex) === false &&
+      (audio.state === "connected" || audio.state === "stopped")
+    )
+      return;
+    if (audio.frame.includes(frameIndex) === true && audio.state === "playing")
+      return;
 
-    if (audio.frame.includes(frameIndex) === false && audio.state === "playing") {
-        audio.audioSource.stop()
-        audio.audioSource.disconnect()
-        audio.state = "stopped";
-        return
-    };
+    if (
+      audio.frame.includes(frameIndex) === false &&
+      audio.state === "playing"
+    ) {
+      audio.audioSource.stop();
+      audio.audioSource.disconnect();
+      audio.state = "stopped";
+      return;
+    }
 
     if (offset === 0 && loopCount === 0) {
-      if (audio.state === 'stopped') {
+      if (audio.state === "stopped") {
         const audioSource = new AudioBufferSourceNode(actx, {
           buffer: audio.audio,
         });
         audioSource.connect(actx.destination);
         audioSource.loop = true;
-        audioSource.start();
+        audio.audioSource = audioSource;
+        audio.audioSource.start();
         setOffset(actx.currentTime);
-        audio.state = "playing"; 
+        audio.state = "playing";
       } else {
         audio.audioSource.start();
         setOffset(actx.currentTime);
         audio.state = "playing";
       }
-       
+
       return;
     }
     if (offset > 0 && loopCount === 0) {
-      if (audio.state === 'stopped') {
+      if (audio.state === "stopped") {
         const audioSource = new AudioBufferSourceNode(actx, {
-        buffer: audio.audio,
-      });
-      audioSource.connect(actx.destination);
-      audioSource.loop = true;
-      audioSource.start(0, actx.currentTime - offset);
-      audio.state = "playing";
+          buffer: audio.audio,
+        });
+        audioSource.connect(actx.destination);
+        audioSource.loop = true;
+        audio.audioSource = audioSource;
+        audio.audioSource.start(0, actx.currentTime - offset);
+        audio.state = "playing";
       } else {
-        console.log(audio.state)
+        console.log(audio.state);
         audio.audioSource.start(0, actx.currentTime - offset);
         audio.state = "playing";
       }
@@ -288,8 +298,9 @@ export const useAudioMix = ({ actx, buffers }: AudioMixProps) => {
         });
         audioSource.connect(actx.destination);
         audioSource.loop = true;
+        audio.audioSource = audioSource;
         const loopedDuration = audio.audio.duration * loopCount;
-        audioSource.start(0, actx.currentTime - loopedDuration - offset);
+        audio.audioSource.start(0, actx.currentTime - loopedDuration - offset);
         audio.state = "playing";
       } else {
         const loopedDuration = audio.audio.duration * loopCount;
@@ -307,10 +318,10 @@ export const useAudioMix = ({ actx, buffers }: AudioMixProps) => {
 
   const startSoundtrack = () => {
     if (!buffs) return;
-    startLoopCount()
+    startLoopCount();
     buffs.forEach((audio) => {
       if (!actx) return;
-      playAudio({ actx, audio, frameIndex:0 });
+      playAudio({ actx, audio, frameIndex: 0 });
     });
   };
 
@@ -320,7 +331,7 @@ export const useAudioMix = ({ actx, buffers }: AudioMixProps) => {
       if (!actx) return;
       playAudio({ actx, audio, frameIndex });
     });
-  }
+  };
 
-  return { changeFrameSoundtrack, startSoundtrack};
+  return { changeFrameSoundtrack, startSoundtrack };
 };

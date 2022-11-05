@@ -21,25 +21,24 @@ const sounds = [
   {
     name: "elements",
     path: "https://kyvqisljtzamvrttkpad.supabase.co/storage/v1/object/sign/soundtracks/elements-section.wav?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiJzb3VuZHRyYWNrcy9lbGVtZW50cy1zZWN0aW9uLndhdiIsImlhdCI6MTY2Njk5MDU1OCwiZXhwIjoxOTgyMzUwNTU4fQ.rhUZWGy5JBhjwZbb0m0E5epydit9QN9AL5fSKiXctng",
-    frame:[0,3,4,5]
+    frame: [0],
   },
   {
     name: "airpad",
     path: "https://kyvqisljtzamvrttkpad.supabase.co/storage/v1/object/sign/soundtracks/airpad.wav?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiJzb3VuZHRyYWNrcy9haXJwYWQud2F2IiwiaWF0IjoxNjY2NzMyMDY2LCJleHAiOjE5ODIwOTIwNjZ9.XsuWBFME1bFT6gtB7PgQA1KGDs-mzb3gHj8z3mZ5vaQ",
-    frame:[0,3,5,6],
+    frame: [1],
   },
   {
     name: "bass",
     path: "https://kyvqisljtzamvrttkpad.supabase.co/storage/v1/object/sign/soundtracks/bass2.wav?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiJzb3VuZHRyYWNrcy9iYXNzMi53YXYiLCJpYXQiOjE2NjY3MzIxMzYsImV4cCI6MTk4MjA5MjEzNn0.YhdhO29428J_l3DJaVOx574MI7RZKrBvk2sX5SRoReE",
-  
-    frame:[1,2,3,4],
+
+    frame: [2],
   },
   {
     name: "deeptech",
     path: "https://kyvqisljtzamvrttkpad.supabase.co/storage/v1/object/sign/soundtracks/deeptech.wav?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiJzb3VuZHRyYWNrcy9kZWVwdGVjaC53YXYiLCJpYXQiOjE2NjY3MzIyNzksImV4cCI6MTk4MjA5MjI3OX0.qI0mah9TS4MPiQAbRffrmJTAnHSnEwNqWkzho_a2iAY",
-    frame:[2,3,5,6]
+    frame: [3],
   },
-  
 ];
 
 // const sounds = [
@@ -63,9 +62,8 @@ const sounds = [
 //     path: "https://kyvqisljtzamvrttkpad.supabase.co/storage/v1/object/sign/soundtracks/deeptech.wav?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiJzb3VuZHRyYWNrcy9kZWVwdGVjaC53YXYiLCJpYXQiOjE2NjY3MzIyNzksImV4cCI6MTk4MjA5MjI3OX0.qI0mah9TS4MPiQAbRffrmJTAnHSnEwNqWkzho_a2iAY",
 //     isActive: false,
 //   },
-  
-// ];
 
+// ];
 
 export default function ProjectView({ project }: ProjectProps) {
   const [frameIndex, setFrameIndex] = useState(0);
@@ -85,7 +83,7 @@ export default function ProjectView({ project }: ProjectProps) {
   const buffers = useAudioBuffer({ actx, sounds });
   // const buffersToPlay = useBuffersToPlay({ buffers, frameIndex });
   const soundBarRef = useRef<HTMLCanvasElement | null>(null);
-  const { startSoundtrack, changeFrameSoundtrack,  } = useAudioMix({
+  const { startSoundtrack, changeFrameSoundtrack } = useAudioMix({
     actx,
     buffers,
   });
@@ -99,7 +97,6 @@ export default function ProjectView({ project }: ProjectProps) {
     if (!actx) return;
     const sounds = buffers;
     startSoundtrack();
-  
   };
 
   const handleSounds = () => {
@@ -118,14 +115,16 @@ export default function ProjectView({ project }: ProjectProps) {
     if (frameIndex === limit) return;
     setFrameIndex((prev) => prev + 1);
     setBarSize((prev) => prev + (1 / project.frames.length) * 98);
-    changeFrameSoundtrack(frameIndex + 1)
+    changeFrameSoundtrack(frameIndex + 1);
+    console.log(frameIndex);
   };
 
   const handleBackward = () => {
     if (frameIndex === 0) return;
     setFrameIndex((prev) => prev - 1);
     setBarSize((prev) => prev - (1 / project.frames.length) * 98);
-    
+    changeFrameSoundtrack(frameIndex - 1);
+    console.log(frameIndex);
   };
 
   // useEffect(() => {
