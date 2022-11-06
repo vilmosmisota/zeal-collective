@@ -1,5 +1,3 @@
-
-
 import { useEffect, useState } from "react";
 
 type AudioBuffersProps = {
@@ -31,12 +29,17 @@ export async function loadAudioBuffers({ actx, sounds }: AudioBuffersProps) {
       audioSource.connect(actx.destination);
       audioSource.loop = true;
 
+      const gainSource = actx.createGain();
+      audioSource.connect(gainSource);
+      gainSource.connect(actx.destination);
+
       return {
         name: sound.name,
         frame: sound.frame,
-        state: 'connected',
+        state: "connected",
         audio: buffer,
-        audioSource: audioSource
+        audioSource: audioSource,
+        gainNode: gainSource,
       };
     })
   );
@@ -54,14 +57,14 @@ type UseAudioBufferProps = {
 };
 
 export const useAudioBuffer = ({ actx, sounds }: UseAudioBufferProps) => {
-  
   const [buffers, setBuffers] = useState<
     | {
         name: string;
         frame: number[];
         audio: AudioBuffer;
         audioSource: AudioBufferSourceNode;
-        state: string
+        state: string;
+        gainNode: GainNode;
       }[]
     | null
   >(null);
