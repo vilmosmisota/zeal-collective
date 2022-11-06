@@ -262,7 +262,16 @@ export const useAudioMix = ({ actx, buffers }: AudioMixProps) => {
         });
         audioSource.connect(actx.destination);
         audioSource.loop = true;
+
+        const gainSource = actx.createGain();
+        audioSource.connect(gainSource);
+        gainSource.connect(actx.destination);
+
         audio.audioSource = audioSource;
+        audio.gainNode = gainSource;
+        audio.gainNode.gain.setValueAtTime(-1, actx.currentTime);
+        audio.gainNode.gain.linearRampToValueAtTime(1, actx.currentTime + 3);
+
         audio.audioSource.start();
         setOffset(actx.currentTime);
         audio.state = "playing";
@@ -272,9 +281,6 @@ export const useAudioMix = ({ actx, buffers }: AudioMixProps) => {
 
         audio.audioSource.start();
         setOffset(actx.currentTime);
-
-        // gainNode.gain.linearRampToValueAtTime(0.5, actx.currentTime + 2);
-
         audio.state = "playing";
       }
 
@@ -287,7 +293,16 @@ export const useAudioMix = ({ actx, buffers }: AudioMixProps) => {
         });
         audioSource.connect(actx.destination);
         audioSource.loop = true;
+
+        const gainSource = actx.createGain();
+        audioSource.connect(gainSource);
+        gainSource.connect(actx.destination);
+
         audio.audioSource = audioSource;
+        audio.gainNode = gainSource;
+        audio.gainNode.gain.setValueAtTime(-1, actx.currentTime);
+        audio.gainNode.gain.linearRampToValueAtTime(1, actx.currentTime + 3);
+
         audio.audioSource.start(0, actx.currentTime - offset);
         audio.state = "playing";
       } else {
@@ -305,7 +320,16 @@ export const useAudioMix = ({ actx, buffers }: AudioMixProps) => {
         });
         audioSource.connect(actx.destination);
         audioSource.loop = true;
+
+        const gainSource = actx.createGain();
+        audioSource.connect(gainSource);
+        gainSource.connect(actx.destination);
+
         audio.audioSource = audioSource;
+        audio.gainNode = gainSource;
+        audio.gainNode.gain.setValueAtTime(-1, actx.currentTime);
+        audio.gainNode.gain.linearRampToValueAtTime(1, actx.currentTime + 3);
+
         const loopedDuration = audio.audio.duration * loopCount;
         audio.audioSource.start(0, actx.currentTime - loopedDuration - offset);
         audio.state = "playing";
