@@ -21,23 +21,23 @@ const sounds = [
   {
     name: "elements",
     path: "https://kyvqisljtzamvrttkpad.supabase.co/storage/v1/object/sign/soundtracks/elements-section.wav?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiJzb3VuZHRyYWNrcy9lbGVtZW50cy1zZWN0aW9uLndhdiIsImlhdCI6MTY2Njk5MDU1OCwiZXhwIjoxOTgyMzUwNTU4fQ.rhUZWGy5JBhjwZbb0m0E5epydit9QN9AL5fSKiXctng",
-    frame: [0],
+    frame: [6, 7, 8],
   },
   {
     name: "airpad",
     path: "https://kyvqisljtzamvrttkpad.supabase.co/storage/v1/object/sign/soundtracks/airpad.wav?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiJzb3VuZHRyYWNrcy9haXJwYWQud2F2IiwiaWF0IjoxNjY2NzMyMDY2LCJleHAiOjE5ODIwOTIwNjZ9.XsuWBFME1bFT6gtB7PgQA1KGDs-mzb3gHj8z3mZ5vaQ",
-    frame: [1],
+    frame: [4, 5, 6],
   },
   {
     name: "bass",
     path: "https://kyvqisljtzamvrttkpad.supabase.co/storage/v1/object/sign/soundtracks/bass2.wav?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiJzb3VuZHRyYWNrcy9iYXNzMi53YXYiLCJpYXQiOjE2NjY3MzIxMzYsImV4cCI6MTk4MjA5MjEzNn0.YhdhO29428J_l3DJaVOx574MI7RZKrBvk2sX5SRoReE",
 
-    frame: [2],
+    frame: [0, 1, 2, 3, 4, 5, 6, 7, 8],
   },
   {
     name: "deeptech",
     path: "https://kyvqisljtzamvrttkpad.supabase.co/storage/v1/object/sign/soundtracks/deeptech.wav?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiJzb3VuZHRyYWNrcy9kZWVwdGVjaC53YXYiLCJpYXQiOjE2NjY3MzIyNzksImV4cCI6MTk4MjA5MjI3OX0.qI0mah9TS4MPiQAbRffrmJTAnHSnEwNqWkzho_a2iAY",
-    frame: [3],
+    frame: [2, 3, 4, 5, 6],
   },
 ];
 
