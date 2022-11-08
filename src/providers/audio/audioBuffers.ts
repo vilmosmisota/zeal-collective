@@ -36,7 +36,7 @@ export async function loadAudioBuffers({ actx, sounds }: AudioBuffersProps) {
       return {
         name: sound.name,
         frame: sound.frame,
-        state: "connected",
+        isPlaying: false,
         audio: buffer,
         audioSource: audioSource,
         gainNode: gainSource,
@@ -63,7 +63,7 @@ export const useAudioBuffer = ({ actx, sounds }: UseAudioBufferProps) => {
         frame: number[];
         audio: AudioBuffer;
         audioSource: AudioBufferSourceNode;
-        state: string;
+        isPlaying: boolean;
         gainNode: GainNode;
       }[]
     | null

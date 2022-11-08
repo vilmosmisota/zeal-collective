@@ -29,7 +29,7 @@ export default function HomeView() {
 const projectsMeta = [
   {
     featuredImg: {
-      src: "https://kyvqisljtzamvrttkpad.supabase.co/storage/v1/object/public/images/Vilmos%20Misota/1.jpg",
+      src: "",
       title: "image",
       width: 1300,
       height: 868,
@@ -43,7 +43,7 @@ const projectsMeta = [
   },
   {
     featuredImg: {
-      src: "https://kyvqisljtzamvrttkpad.supabase.co/storage/v1/object/public/images/Vilmos%20Misota/2.jpg",
+      src: "",
       title: "image2",
       width: 1300,
       height: 868,

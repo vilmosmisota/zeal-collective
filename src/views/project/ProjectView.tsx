@@ -19,51 +19,32 @@ import { useAudioMix } from "../../providers/audio/audioMix";
 
 const sounds = [
   {
-    name: "elements",
-    path: "https://kyvqisljtzamvrttkpad.supabase.co/storage/v1/object/sign/soundtracks/elements-section.wav?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiJzb3VuZHRyYWNrcy9lbGVtZW50cy1zZWN0aW9uLndhdiIsImlhdCI6MTY2Njk5MDU1OCwiZXhwIjoxOTgyMzUwNTU4fQ.rhUZWGy5JBhjwZbb0m0E5epydit9QN9AL5fSKiXctng",
-    frame: [6, 7, 8],
+    name: "airpad",
+    path: "https://res.cloudinary.com/vilmosmisota/video/upload/v1667944686/media-app/Vilmos%20Misota/photos/airpad_cbvt0e.wav",
+    frame: [0, 1, 2, 3],
   },
   {
-    name: "airpad",
-    path: "https://kyvqisljtzamvrttkpad.supabase.co/storage/v1/object/sign/soundtracks/airpad.wav?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiJzb3VuZHRyYWNrcy9haXJwYWQud2F2IiwiaWF0IjoxNjY2NzMyMDY2LCJleHAiOjE5ODIwOTIwNjZ9.XsuWBFME1bFT6gtB7PgQA1KGDs-mzb3gHj8z3mZ5vaQ",
-    frame: [4, 5, 6],
+    name: "elements",
+    path: "https://res.cloudinary.com/vilmosmisota/video/upload/v1667944685/media-app/Vilmos%20Misota/photos/elements-section_yymltx.wav",
+    frame: [6],
+  },
+  {
+    name: "choir",
+    path: "https://res.cloudinary.com/vilmosmisota/video/upload/v1667944684/media-app/Vilmos%20Misota/photos/choir_iryevc.wav",
+    frame: [4, 5],
   },
   {
     name: "bass",
-    path: "https://kyvqisljtzamvrttkpad.supabase.co/storage/v1/object/sign/soundtracks/bass2.wav?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiJzb3VuZHRyYWNrcy9iYXNzMi53YXYiLCJpYXQiOjE2NjY3MzIxMzYsImV4cCI6MTk4MjA5MjEzNn0.YhdhO29428J_l3DJaVOx574MI7RZKrBvk2sX5SRoReE",
+    path: "https://res.cloudinary.com/vilmosmisota/video/upload/v1667945419/media-app/Vilmos%20Misota/photos/bass2_f8e27t.wav",
 
-    frame: [0, 1, 2, 3, 4, 5, 6, 7, 8],
+    frame: [2, 3],
   },
   {
     name: "deeptech",
-    path: "https://kyvqisljtzamvrttkpad.supabase.co/storage/v1/object/sign/soundtracks/deeptech.wav?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiJzb3VuZHRyYWNrcy9kZWVwdGVjaC53YXYiLCJpYXQiOjE2NjY3MzIyNzksImV4cCI6MTk4MjA5MjI3OX0.qI0mah9TS4MPiQAbRffrmJTAnHSnEwNqWkzho_a2iAY",
-    frame: [2, 3, 4, 5, 6],
+    path: "https://res.cloudinary.com/vilmosmisota/video/upload/v1667944684/media-app/Vilmos%20Misota/photos/deeptech_zst7gu.wav",
+    frame: [0, 3, 4, 5, 6],
   },
 ];
-
-// const sounds = [
-//   {
-//     name: "elements",
-//     path: "https://kyvqisljtzamvrttkpad.supabase.co/storage/v1/object/sign/soundtracks/elements-section.wav?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiJzb3VuZHRyYWNrcy9lbGVtZW50cy1zZWN0aW9uLndhdiIsImlhdCI6MTY2Njk5MDU1OCwiZXhwIjoxOTgyMzUwNTU4fQ.rhUZWGy5JBhjwZbb0m0E5epydit9QN9AL5fSKiXctng",
-//     isActive: true,
-//   },
-//   {
-//     name: "airpad",
-//     path: "https://kyvqisljtzamvrttkpad.supabase.co/storage/v1/object/sign/soundtracks/elements-section.wav?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiJzb3VuZHRyYWNrcy9lbGVtZW50cy1zZWN0aW9uLndhdiIsImlhdCI6MTY2Njk5MDU1OCwiZXhwIjoxOTgyMzUwNTU4fQ.rhUZWGy5JBhjwZbb0m0E5epydit9QN9AL5fSKiXctng",
-//     isActive: false,
-//   },
-//   {
-//     name: "bass",
-//     path: "https://kyvqisljtzamvrttkpad.supabase.co/storage/v1/object/sign/soundtracks/elements-section.wav?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiJzb3VuZHRyYWNrcy9lbGVtZW50cy1zZWN0aW9uLndhdiIsImlhdCI6MTY2Njk5MDU1OCwiZXhwIjoxOTgyMzUwNTU4fQ.rhUZWGy5JBhjwZbb0m0E5epydit9QN9AL5fSKiXctng",
-//     isActive: false,
-//   },
-//   {
-//     name: "deeptech",
-//     path: "https://kyvqisljtzamvrttkpad.supabase.co/storage/v1/object/sign/soundtracks/deeptech.wav?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiJzb3VuZHRyYWNrcy9kZWVwdGVjaC53YXYiLCJpYXQiOjE2NjY3MzIyNzksImV4cCI6MTk4MjA5MjI3OX0.qI0mah9TS4MPiQAbRffrmJTAnHSnEwNqWkzho_a2iAY",
-//     isActive: false,
-//   },
-
-// ];
 
 export default function ProjectView({ project }: ProjectProps) {
   const [frameIndex, setFrameIndex] = useState(0);
@@ -275,12 +256,6 @@ export default function ProjectView({ project }: ProjectProps) {
               length={project.frames.length}
             />
           </div>
-          <audio
-            ref={mainSoundtrackRef}
-            crossOrigin="anonymous"
-            src="https://kyvqisljtzamvrttkpad.supabase.co/storage/v1/object/sign/soundtracks/beat_1.wav?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiJzb3VuZHRyYWNrcy9iZWF0XzEud2F2IiwiaWF0IjoxNjY2Mjk5NTgyLCJleHAiOjE5ODE2NTk1ODJ9.8pmjqjpn-xZyaZZyc2MZ0d1c6xDbGm4tH95TJX5pf78&t=2022-10-20T20%3A59%3A41.272Z"
-            loop
-          />
         </section>
       )}
     </>
