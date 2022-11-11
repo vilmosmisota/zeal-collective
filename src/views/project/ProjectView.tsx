@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-misused-promises */
 import { useEffect, useRef, useState } from "react";
 
 import { ProjectProps } from "../../pages/project/[slug]";
@@ -14,37 +15,42 @@ import PlayBarT1 from "../../components/project/controlBar/PlayBarT1";
 import { AudioAnalyzer } from "../../utils/classes";
 import { SoundOnBtn } from "../../components/buttons/SoundOnBtn";
 import { AudioBuffers } from "../../utils/audioBuffer";
-import { useAudioBuffer } from "../../providers/audio/audioBuffers";
+import {
+  useAudioBuffer,
+  useClickBuffer,
+} from "../../providers/audio/audioBuffers";
 import { useAudioMix } from "../../providers/audio/audioMix";
 
 const sounds = [
   {
     name: "airpad",
-    path: "https://res.cloudinary.com/vilmosmisota/video/upload/v1667944686/media-app/Vilmos%20Misota/photos/airpad_cbvt0e.wav",
-    frame: [0, 1, 2, 3],
+    path: "/sounds/tracks/airpad.wav",
+    frame: [0, 1, 2, 3, 4, 5, 6, 7],
   },
   {
     name: "elements",
-    path: "https://res.cloudinary.com/vilmosmisota/video/upload/v1667944685/media-app/Vilmos%20Misota/photos/elements-section_yymltx.wav",
-    frame: [6],
+    path: "/sounds/tracks/elements-section.wav",
+    frame: [],
   },
   {
     name: "choir",
-    path: "https://res.cloudinary.com/vilmosmisota/video/upload/v1667944684/media-app/Vilmos%20Misota/photos/choir_iryevc.wav",
-    frame: [4, 5],
+    path: "/sounds/tracks/choir.wav",
+    frame: [3, 4],
   },
   {
     name: "bass",
-    path: "https://res.cloudinary.com/vilmosmisota/video/upload/v1667945419/media-app/Vilmos%20Misota/photos/bass2_f8e27t.wav",
+    path: "/sounds/tracks/bass2.wav",
 
-    frame: [2, 3],
+    frame: [2, 3, 4, 7, 8],
   },
   {
     name: "deeptech",
-    path: "https://res.cloudinary.com/vilmosmisota/video/upload/v1667944684/media-app/Vilmos%20Misota/photos/deeptech_zst7gu.wav",
-    frame: [0, 3, 4, 5, 6],
+    path: "/sounds/tracks/deeptech.wav",
+    frame: [4, 5, 6, 7, 8],
   },
 ];
+
+const clickSound = "/sounds/effects/camera-shutter.wav";
 
 export default function ProjectView({ project }: ProjectProps) {
   const [frameIndex, setFrameIndex] = useState(0);
@@ -61,14 +67,13 @@ export default function ProjectView({ project }: ProjectProps) {
   //   "https://kyvqisljtzamvrttkpad.supabase.co/storage/v1/object/sign/soundtracks/01.%20The%20Mark%20(Interlude).mp3?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiJzb3VuZHRyYWNrcy8wMS4gVGhlIE1hcmsgKEludGVybHVkZSkubXAzIiwiaWF0IjoxNjY2MDIyMzY0LCJleHAiOjE5ODEzODIzNjR9._243msyX6P-sl_DDfgx4o33hzn0DjBWhM6_N4dXeD2Y"
   // );
   const [actx, setActx] = useState<null | AudioContext>(null);
-  const [gainNode, setGainNode] = useState<GainNode | null>(null);
   const buffers = useAudioBuffer({ actx, sounds });
-  // const buffersToPlay = useBuffersToPlay({ buffers, frameIndex });
   const soundBarRef = useRef<HTMLCanvasElement | null>(null);
   const { startSoundtrack, changeFrameSoundtrack } = useAudioMix({
     actx,
     buffers,
   });
+  const { loadClickBuffer, playClick } = useClickBuffer();
 
   useLogger(buffers);
 
@@ -81,9 +86,10 @@ export default function ProjectView({ project }: ProjectProps) {
     startSoundtrack();
   };
 
-  const handleSounds = () => {
+  const handleSounds = async () => {
     const mactx = new AudioContext();
     setActx(mactx);
+    await loadClickBuffer(mactx, clickSound).catch((err) => console.warn(err));
   };
 
   const handlePausePlay = () => {
@@ -98,7 +104,8 @@ export default function ProjectView({ project }: ProjectProps) {
     setFrameIndex((prev) => prev + 1);
     setBarSize((prev) => prev + (1 / project.frames.length) * 98);
     changeFrameSoundtrack(frameIndex + 1);
-    console.log(frameIndex);
+    if (!actx) return;
+    playClick(actx);
   };
 
   const handleBackward = () => {
@@ -106,7 +113,8 @@ export default function ProjectView({ project }: ProjectProps) {
     setFrameIndex((prev) => prev - 1);
     setBarSize((prev) => prev - (1 / project.frames.length) * 98);
     changeFrameSoundtrack(frameIndex - 1);
-    console.log(frameIndex);
+    if (!actx) return;
+    playClick(actx);
   };
 
   // useEffect(() => {
@@ -226,7 +234,7 @@ export default function ProjectView({ project }: ProjectProps) {
         )}
       </main>
       {isStarted && (
-        <section className="z-30 fixed bottom-0 left-0 bg-zinc800 h-[60px] w-screen flex items-center">
+        <section className="z-30 fixed bottom-0 left-0 bg-black h-[60px] w-screen flex items-center">
           <div className="mx-auto w-full max-w-screen-md flex items-center justify-between px-2">
             <div className="w-2/6 max-w-[200px] flex items-center justify-center flex-col">
               <div className="relative w-[100px] h-[25px]">

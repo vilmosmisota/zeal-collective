@@ -390,6 +390,7 @@ export const useAudioMix = ({ actx, buffers }: AudioMixProps) => {
       audio.frame.includes(frameIndex) === false &&
       audio.isPlaying === true
     ) {
+      audio.gainNode.gain.setValueAtTime(1, actx.currentTime);
       audio.gainNode.gain.linearRampToValueAtTime(-1, actx.currentTime + 3);
       audio.isPlaying = false;
       console.log(audio.name, "not in frame and playing");
@@ -400,6 +401,7 @@ export const useAudioMix = ({ actx, buffers }: AudioMixProps) => {
       audio.frame.includes(frameIndex) === true &&
       audio.isPlaying === false
     ) {
+      audio.gainNode.gain.setValueAtTime(-1, actx.currentTime);
       audio.gainNode.gain.linearRampToValueAtTime(1, actx.currentTime + 3);
       audio.isPlaying = true;
       console.log(audio.name, "in frame and not playing");
