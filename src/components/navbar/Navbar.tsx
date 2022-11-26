@@ -7,7 +7,7 @@ export default function Navbar() {
   return (
     <nav
       className={`${
-        theme === "dark" ? "bg-zinc800" : "bg-peach400"
+        theme === "dark" ? "bg-black" : "bg-peach400"
       } w-screen h-[60px]   z-50 flex justify-center fixed top-0 left-0`}
     >
       <div className="px-4 py-2 w-full max-w-screen-xl flex items-center justify-between mx-auto">

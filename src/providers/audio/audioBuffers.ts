@@ -56,73 +56,74 @@ type UseAudioBufferProps = {
   }[];
 };
 
-export const useAudioBuffer = ({ actx, sounds }: UseAudioBufferProps) => {
-  const [buffers, setBuffers] = useState<
-    | {
-        name: string;
-        frame: number[];
-        audio: AudioBuffer;
-        audioSource: AudioBufferSourceNode;
-        isPlaying: boolean;
-        gainNode: GainNode;
-      }[]
-    | null
-  >(null);
+// export const useAudioBuffer = ({ actx, sounds }: UseAudioBufferProps) => {
+//   const [buffers, setBuffers] = useState<
+//     | {
+//         name: string;
+//         frame: number[];
+//         audio: AudioBuffer;
+//         audioSource: AudioBufferSourceNode;
+//         isPlaying: boolean;
+//         gainNode: GainNode;
+//       }[]
+//     | null
+//   >(null);
 
-  useEffect(() => {
-    if (!actx) return;
+//   useEffect(() => {
+//     if (!actx) return;
 
-    const loadBuffers = async () => {
-      const bs = await loadAudioBuffers({ actx, sounds });
-      setBuffers(bs);
-    };
-    loadBuffers().catch((err) => console.warn(err));
-  }, [sounds, actx]);
-  return buffers;
-};
+//     const loadBuffers = async () => {
+//       const bs = await loadAudioBuffers({ actx, sounds });
+//       setBuffers(bs);
+//     };
+//     loadBuffers().catch((err) => console.warn(err));
+//   }, [sounds, actx]);
+//   return buffers;
+// };
 
-type AudioBufferProps = {
-  actx: AudioContext;
-  sound: string;
-};
+// type AudioBufferProps = {
+//   actx: AudioContext;
+//   sound: string;
+// };
 
-export const useClickBuffer = () => {
-  const [clickAudioNode, setClickAudioNode] = useState<null | {
-    audioBuffer: AudioBuffer;
-    gainSource: GainNode;
-  }>(null);
-  const loadBuffer = async (actx: AudioContext, filePath: string) => {
-    const response = await fetch(filePath);
-    const arrayBuffer = await response.arrayBuffer();
-    const audioBuffer = await actx.decodeAudioData(arrayBuffer);
-    return audioBuffer;
-  };
+// export const useClickBuffer = () => {
+//   const [clickAudioNode, setClickAudioNode] = useState<null | {
+//     audioBuffer: AudioBuffer;
+//     gainSource: GainNode;
+//   }>(null);
+//   const loadBuffer = async (actx: AudioContext, filePath: string) => {
+//     const response = await fetch(filePath);
+//     const arrayBuffer = await response.arrayBuffer();
+//     const audioBuffer = await actx.decodeAudioData(arrayBuffer);
+//     return audioBuffer;
+//   };
 
-  const loadClickBuffer = async (actx: AudioContext, filePath: string) => {
-    const audioBuffer = await loadBuffer(actx, filePath);
+//   const loadClickBuffer = async (actx: AudioContext, filePath: string) => {
+//     const audioBuffer = await loadBuffer(actx, filePath);
 
-    const gainSource = actx.createGain();
-    gainSource.connect(actx.destination);
+//     const gainSource = actx.createGain();
+//     gainSource.connect(actx.destination);
 
-    const aNode = {
-      audioBuffer,
-      gainSource,
-    };
-    setClickAudioNode(aNode);
-  };
-  const playClick = (actx: AudioContext) => {
-    if (!clickAudioNode) return;
-    const audioSource = new AudioBufferSourceNode(actx, {
-      buffer: clickAudioNode.audioBuffer,
-    });
-    audioSource.connect(actx.destination);
-    audioSource.connect(clickAudioNode.gainSource);
-    clickAudioNode.gainSource.gain.value = -0.7;
-    audioSource.start();
-  };
+//     const aNode = {
+//       audioBuffer,
+//       gainSource,
+//     };
+//     setClickAudioNode(aNode);
+//   };
+//   const playClick = (actx: AudioContext) => {
+//     if (!clickAudioNode) return;
+//     const audioSource = new AudioBufferSourceNode(actx, {
+//       buffer: clickAudioNode.audioBuffer,
+//     });
+//     audioSource.connect(actx.destination);
+//     audioSource.connect(clickAudioNode.gainSource);
+//     clickAudioNode.gainSource.gain.value = -0.7;
+//     audioSource.playbackRate.value = 1;
+//     audioSource.start();
+//   };
 
-  return { loadClickBuffer, playClick };
-};
+//   return { loadClickBuffer, playClick };
+// };
 
 // -1, -0.9, -0.8, -0.7, -0.6, -0.5, -0.4, -0.3, -0.2, -0.1, 0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1
 

@@ -11,54 +11,147 @@ import {
   SliderFrameToPreloadT1,
 } from "../../components/project/slider/SliderFrameT1";
 import ControlBtnsT1 from "../../components/project/controlBar/ControlBtnsT1";
-import PlayBarT1 from "../../components/project/controlBar/PlayBarT1";
-import { AudioAnalyzer } from "../../utils/classes";
-import { SoundOnBtn } from "../../components/buttons/SoundOnBtn";
-import { AudioBuffers } from "../../utils/audioBuffer";
+
 import {
-  useAudioBuffer,
-  useClickBuffer,
-} from "../../providers/audio/audioBuffers";
-import { useAudioMix } from "../../providers/audio/audioMix";
+  useSoundtrackBuffer,
+  useSoundtrackMix,
+} from "../../providers/audio/soundtrackMix";
+import { useUIEffectMix } from "../../providers/audio/uiSoundEffectsMix";
+import { useSoundEffectMix } from "../../providers/audio/backingSoundEffectsMix";
 
 const sounds = [
   {
     name: "airpad",
-    path: "/sounds/tracks/airpad.wav",
+    path: "https://res.cloudinary.com/vilmosmisota/video/upload/v1667944686/media-app/Vilmos%20Misota/photos/airpad_cbvt0e.wav",
     frame: [0, 1, 2, 3, 4, 5, 6, 7],
   },
   {
     name: "elements",
-    path: "/sounds/tracks/elements-section.wav",
+    path: "https://res.cloudinary.com/vilmosmisota/video/upload/v1667944685/media-app/Vilmos%20Misota/photos/elements-section_yymltx.wav",
     frame: [],
   },
   {
     name: "choir",
-    path: "/sounds/tracks/choir.wav",
+    path: "https://res.cloudinary.com/vilmosmisota/video/upload/v1667944684/media-app/Vilmos%20Misota/photos/choir_iryevc.wav",
     frame: [3, 4],
   },
   {
     name: "bass",
-    path: "/sounds/tracks/bass2.wav",
+    path: "https://res.cloudinary.com/vilmosmisota/video/upload/v1667945419/media-app/Vilmos%20Misota/photos/bass2_f8e27t.wav",
 
     frame: [2, 3, 4, 7, 8],
   },
   {
     name: "deeptech",
-    path: "/sounds/tracks/deeptech.wav",
+    path: "https://res.cloudinary.com/vilmosmisota/video/upload/v1667944684/media-app/Vilmos%20Misota/photos/deeptech_zst7gu.wav",
     frame: [4, 5, 6, 7, 8],
   },
 ];
 
-const clickSound = "/sounds/effects/camera-shutter.wav";
+const sEffects = [
+  [
+    {
+      name: "seaside",
+      path: "https://res.cloudinary.com/vilmosmisota/video/upload/v1669505153/media-app/Vilmos%20Misota/soundeffects/seaside_sql9ng.wav",
+      gain: 0.3,
+      pan: 1,
+      loop: true,
+      repeat: false,
+      random_start: false,
+    },
+    {
+      name: "thunder1",
+      path: "https://res.cloudinary.com/vilmosmisota/video/upload/v1669505148/media-app/Vilmos%20Misota/soundeffects/thunder1_aai5hx.wav",
+      gain: 0.3,
+      pan: -1,
+      loop: false,
+      repeat: false,
+      random_start: false,
+    },
+  ],
+  [
+    {
+      name: "seawash",
+      path: "https://res.cloudinary.com/vilmosmisota/video/upload/v1669505152/media-app/Vilmos%20Misota/soundeffects/walking-in-water_gxcqxd.wav",
+      gain: 0.3,
+      pan: 0,
+      loop: true,
+      repeat: false,
+      random_start: false,
+    },
+  ],
+  [
+    {
+      name: "ocean-pulse",
+      path: "https://res.cloudinary.com/vilmosmisota/video/upload/v1669505150/media-app/Vilmos%20Misota/soundeffects/ocean-wave-pulse_abiw9i.wav",
+      gain: 0.3,
+      pan: 0,
+      loop: true,
+      repeat: false,
+      random_start: false,
+    },
+    {
+      name: "crushing-wave",
+      path: "https://res.cloudinary.com/vilmosmisota/video/upload/v1669505149/media-app/Vilmos%20Misota/soundeffects/crushing-wave_pm5nr8.wav",
+      gain: 0.3,
+      pan: -1,
+      loop: false,
+      repeat: false,
+      random_start: false,
+    },
+  ],
+  [
+    {
+      name: "rocky-coast",
+      path: "https://res.cloudinary.com/vilmosmisota/video/upload/v1669505150/media-app/Vilmos%20Misota/soundeffects/rocky-coast_blb5mb.wav",
+      gain: 0.5,
+      pan: 0,
+      loop: true,
+      repeat: false,
+      random_start: false,
+    },
+  ],
+  [
+    {
+      name: "ocean-pulse",
+      path: "https://res.cloudinary.com/vilmosmisota/video/upload/v1669505150/media-app/Vilmos%20Misota/soundeffects/ocean-wave-pulse_abiw9i.wav",
+      gain: 0.3,
+      pan: 0,
+      loop: true,
+      repeat: false,
+      random_start: false,
+    },
+    {
+      name: "crushing-wave",
+      path: "https://res.cloudinary.com/vilmosmisota/video/upload/v1669505149/media-app/Vilmos%20Misota/soundeffects/crushing-wave_pm5nr8.wav",
+      gain: 0.3,
+      pan: -1,
+      loop: false,
+      repeat: false,
+      random_start: false,
+    },
+  ],
+  [
+    {
+      name: "underwater",
+      path: "https://res.cloudinary.com/vilmosmisota/video/upload/v1669505151/media-app/Vilmos%20Misota/soundeffects/underwater_xea0wd.wav",
+      gain: 0.5,
+      pan: 0,
+      loop: true,
+      repeat: false,
+      random_start: false,
+    },
+  ],
+];
+
+const clickSound =
+  "https://res.cloudinary.com/vilmosmisota/video/upload/v1669505147/media-app/Vilmos%20Misota/soundeffects/camera-shutter_r6l6u9.wav";
 
 export default function ProjectView({ project }: ProjectProps) {
   const [frameIndex, setFrameIndex] = useState(0);
   const { height: windowHeight } = useWindowDimensions();
   const [isStarted, setIsStarted] = useState(false);
-  const [isPausePlay, setIsPausePlay] = useState(false);
-  const [barSize, setBarSize] = useState((1 / project.frames.length) * 98);
-  const mainSoundtrackRef = useRef<HTMLAudioElement | null>(null);
+
   // const [bufferState, setBufferState] = useState<null | AudioBuffer>(null);
   // const [bSource, setBSource] = useState<AudioBufferSourceNode | null>(null);
   // const [analyzer, setAnalyzer] = useState<AudioAnalyzer | null>(null);
@@ -67,54 +160,45 @@ export default function ProjectView({ project }: ProjectProps) {
   //   "https://kyvqisljtzamvrttkpad.supabase.co/storage/v1/object/sign/soundtracks/01.%20The%20Mark%20(Interlude).mp3?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiJzb3VuZHRyYWNrcy8wMS4gVGhlIE1hcmsgKEludGVybHVkZSkubXAzIiwiaWF0IjoxNjY2MDIyMzY0LCJleHAiOjE5ODEzODIzNjR9._243msyX6P-sl_DDfgx4o33hzn0DjBWhM6_N4dXeD2Y"
   // );
   const [actx, setActx] = useState<null | AudioContext>(null);
-  const buffers = useAudioBuffer({ actx, sounds });
+  const { isSoundtracksLoaded, startSoundtracks, changeFrameSoundtrack } =
+    useSoundtrackMix();
+  const { startSoundEffects, stopSounds, preLoadEffect, playSound } =
+    useSoundEffectMix();
   const soundBarRef = useRef<HTMLCanvasElement | null>(null);
-  const { startSoundtrack, changeFrameSoundtrack } = useAudioMix({
-    actx,
-    buffers,
-  });
-  const { loadClickBuffer, playClick } = useClickBuffer();
+  const { loadClickBuffer, playClick } = useUIEffectMix();
 
-  useLogger(buffers);
-
-  const handleStart = () => {
+  const handleStart = async () => {
     setIsStarted(true);
-    setIsPausePlay(true);
-    if (!buffers) return;
-    if (!actx) return;
-    const sounds = buffers;
-    startSoundtrack();
-  };
-
-  const handleSounds = async () => {
     const mactx = new AudioContext();
-    setActx(mactx);
+    await startSoundtracks({ mactx, sounds }).catch((err) => console.warn(err));
     await loadClickBuffer(mactx, clickSound).catch((err) => console.warn(err));
+    await startSoundEffects(sEffects[0], mactx);
+    await preLoadEffect(sEffects[1], mactx);
+    setActx(mactx);
   };
 
-  const handlePausePlay = () => {
-    setIsPausePlay(!isPausePlay);
-    if (!buffers) return;
-    if (!actx) return;
-  };
-
-  const handleForward = () => {
+  const handleForward = async () => {
     const limit = project.frames.length - 1;
     if (frameIndex === limit) return;
     setFrameIndex((prev) => prev + 1);
-    setBarSize((prev) => prev + (1 / project.frames.length) * 98);
     changeFrameSoundtrack(frameIndex + 1);
     if (!actx) return;
     playClick(actx);
+
+    playSound(frameIndex + 1);
+    stopSounds(frameIndex);
+    await preLoadEffect(sEffects[frameIndex + 2], actx);
   };
 
   const handleBackward = () => {
     if (frameIndex === 0) return;
     setFrameIndex((prev) => prev - 1);
-    setBarSize((prev) => prev - (1 / project.frames.length) * 98);
     changeFrameSoundtrack(frameIndex - 1);
     if (!actx) return;
     playClick(actx);
+
+    playSound(frameIndex - 1);
+    stopSounds(frameIndex);
   };
 
   // useEffect(() => {
@@ -219,11 +303,10 @@ export default function ProjectView({ project }: ProjectProps) {
             name={`${project.artists.first_name} ${project.artists.last_name}`}
             featured_img={project.featured_img}
             handleClick={handleStart}
-            handleSounds={handleSounds}
           />
         )}
 
-        {isStarted && (
+        {isStarted && isSoundtracksLoaded && (
           <SliderWrapperT1>
             <GrainCanvas />
             <SliderFrameT1 frame={project.frames[frameIndex]} />
@@ -233,10 +316,10 @@ export default function ProjectView({ project }: ProjectProps) {
           </SliderWrapperT1>
         )}
       </main>
-      {isStarted && (
+      {isStarted && isSoundtracksLoaded && (
         <section className="z-30 fixed bottom-0 left-0 bg-black h-[60px] w-screen flex items-center">
           <div className="mx-auto w-full max-w-screen-md flex items-center justify-between px-2">
-            <div className="w-2/6 max-w-[200px] flex items-center justify-center flex-col">
+            {/* <div className="w-2/6 max-w-[200px] flex items-center justify-center flex-col">
               <div className="relative w-[100px] h-[25px]">
                 <canvas
                   className=" border-2 rounded-lg"
@@ -248,20 +331,11 @@ export default function ProjectView({ project }: ProjectProps) {
                   <SoundOnBtn />
                 </div>
               </div>
-
-              {/* <div className=" text-peach400">Sound</div> */}
-            </div>
+            </div> */}
 
             <ControlBtnsT1
               handleBackward={handleBackward}
-              isPausePlay={isPausePlay}
               handleForward={handleForward}
-              handlePausePlay={handlePausePlay}
-            />
-            <PlayBarT1
-              barSize={barSize}
-              frameIndex={frameIndex}
-              length={project.frames.length}
             />
           </div>
         </section>
@@ -269,42 +343,3 @@ export default function ProjectView({ project }: ProjectProps) {
     </>
   );
 }
-
-// const SliderBackgroundSound = ({
-//   sound,
-//   current,
-// }: SliderBackgroundSoundProps) => {
-//   const [isActive, setIsActive] = useState(false);
-//   const [play, { stop }] = useSound(sound);
-
-//   useEffect(() => {
-//     if (sound !== current) {
-//       stop();
-//       return;
-//     }
-//     play();
-
-//     return () => stop();
-//   }, [sound, current, play, stop]);
-
-//   return (
-//     <>
-//       <input hidden readOnly value="text" name={sound} />
-//     </>
-//   );
-// };
-
-const useBase64 = (url: string) => {
-  const [b64, setB64] = useState<null | string>(null);
-
-  useEffect(() => {
-    async function get(url: string) {
-      const response = await fetch(url);
-      const buff = await response.arrayBuffer();
-      const base = Buffer.from(buff).toString("base64");
-      setB64(base);
-    }
-    get(url).catch((err) => console.warn(err));
-  }, [url]);
-  return b64;
-};
