@@ -283,7 +283,7 @@ export default function ProjectView({ project }: ProjectProps) {
     const audioElement = initializerAudioRef.current;
     if (!audioElement) return;
 
-    audioElement.volume = 0;
+    audioElement.volume = 0.5;
     const audioSource = audioCtx.createMediaElementSource(audioElement);
     audioSource.connect(audioCtx.destination);
     setActx(audioCtx);
@@ -299,7 +299,7 @@ export default function ProjectView({ project }: ProjectProps) {
         className={` w-screen overscroll-contain overflow-hidden relative bg-zinc50`}
         style={{ height: `${windowHeight}px` }}
       >
-        <audio ref={initializerAudioRef} src={clickSound}></audio>
+        <audio ref={initializerAudioRef} src={clickSound} autoPlay></audio>
         {!isStarted && (
           <IntroT1
             title={project.title}
