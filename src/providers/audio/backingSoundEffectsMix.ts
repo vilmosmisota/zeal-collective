@@ -1,6 +1,7 @@
 import { useState } from "react";
+import { useLogger } from "../../utils/hooks";
 
-type TSounds = {
+export type TSounds = {
   name: string;
   path: string;
   gain: number;
@@ -8,6 +9,7 @@ type TSounds = {
   loop: boolean;
   repeat: boolean;
   random_start: boolean;
+  buff_state: "empty" | "loaded" | "ready";
 };
 
 type TAudioNode = {
@@ -50,34 +52,50 @@ export async function loadBuffers(mactx: AudioContext, effects: TSounds[]) {
 export function useSoundEffectMix() {
   const [buffers, setBuffers] = useState<Array<TBuffers[]>>([]);
   const [actx, setActx] = useState<null | AudioContext>(null);
+  const [masterGain, setMasterGain] = useState<null | GainNode>(null);
+  const [loadedFrames, setLoadedFrames] = useState<number[]>([]);
 
-  const preLoadEffect = async (effect: TSounds[], actx: AudioContext) => {
+  const preLoadEffect = async (
+    effect: TSounds[],
+    actx: AudioContext,
+    mGain: GainNode,
+    frameToPreload: number
+  ) => {
+    if (loadedFrames.includes(frameToPreload)) return;
+
     const effBuffer = await loadBuffers(actx, effect);
     const preLoadedBuffer = effBuffer.map((sound) => {
       const { audioSource, panNode, gainNode } = setUpAudioNodes(
         actx,
-        sound.buffer
+        sound.buffer,
+        mGain
       );
       const b = {
         ...sound,
         bufferSource: audioSource,
         panNode: panNode,
         gainNode: gainNode,
-        isPlaying: true,
+        isPlaying: false,
       };
-
+      b.buff_state = "loaded";
       return b;
     });
     setBuffers((prev) => [...prev, preLoadedBuffer]);
+    setLoadedFrames((prev) => [...prev, frameToPreload]);
   };
 
-  const startSoundEffects = async (effects: TSounds[], actx: AudioContext) => {
+  const startSoundEffects = async (
+    effects: TSounds[],
+    actx: AudioContext,
+    mGain: GainNode
+  ) => {
     const loadedBuffers = await loadBuffers(actx, effects);
 
     const effectBuffers = loadedBuffers.map((sound) => {
       const { audioSource, panNode, gainNode } = setUpAudioNodes(
         actx,
-        sound.buffer
+        sound.buffer,
+        mGain
       );
 
       if (sound.loop) {
@@ -90,6 +108,7 @@ export function useSoundEffectMix() {
           gainNode: gainNode,
           isPlaying: true,
         };
+        b.buff_state = "ready";
         return b;
       }
       fadeInSound(gainNode, audioSource, actx, sound.gain, 3);
@@ -101,106 +120,105 @@ export function useSoundEffectMix() {
         gainNode: gainNode,
         isPlaying: true,
       };
+      b.buff_state = "ready";
       return b;
     });
 
     setActx(actx);
+    setMasterGain(mGain);
     setBuffers((prev) => [...prev, effectBuffers]);
   };
 
   const playSound = (frameIndex: number) => {
-    if (!actx) return;
-    if (buffers.length < frameIndex + 1) return;
+    if (!actx || !masterGain || buffers.length < frameIndex + 1) return;
     const buffersToPlay = [...buffers];
+
     const updatedBuffers = buffersToPlay.map((sounds, i) => {
-      if (i !== frameIndex) return sounds;
-      const updatedBuffer = sounds.map((sound) => {
-        if (sound.isCleared && !sound.isPlaying) {
-          console.log("new buffer to be creater");
-          const { audioSource, panNode, gainNode } = setUpAudioNodes(
-            actx,
-            sound.buffer
-          );
-          if (sound.loop) {
-            audioSource.loop = true;
-            fadeInSound(gainNode, audioSource, actx, sound.gain, 3);
+      if (i !== frameIndex) {
+        const updatedBuffer = sounds.map((sound) => {
+          if (
+            !sound.bufferSource ||
+            !sound.gainNode ||
+            !sound.panNode ||
+            sound.buff_state !== "ready"
+          ) {
             const b = {
               ...sound,
-              bufferSource: audioSource,
-              panNode: panNode,
-              gainNode: gainNode,
-              isPlaying: true,
             };
             return b;
           }
-          fadeInSound(gainNode, audioSource, actx, sound.gain, 3);
 
+          fadeOutSound(sound.gainNode, sound.bufferSource, actx, sound.gain, 3);
+          const b = {
+            ...sound,
+            isPlaying: false,
+            isCleared: true,
+          };
+          b.buff_state = "loaded";
+          return b;
+        });
+        return updatedBuffer;
+      }
+
+      const updatedBuffer = sounds.map((sound) => {
+        const { audioSource, panNode, gainNode } = setUpAudioNodes(
+          actx,
+          sound.buffer,
+          masterGain
+        );
+
+        if (sound.loop) {
+          audioSource.loop = true;
+          fadeInSound(gainNode, audioSource, actx, sound.gain, 3);
           const b = {
             ...sound,
             bufferSource: audioSource,
             panNode: panNode,
             gainNode: gainNode,
             isPlaying: true,
+            isCleared: false,
           };
+          b.buff_state = "ready";
           return b;
         }
-        if (!sound.bufferSource || !sound.gainNode || !sound.panNode)
-          return sound;
-        if (sound.loop) {
-          sound.bufferSource.loop = true;
-          fadeInSound(sound.gainNode, sound.bufferSource, actx, sound.gain, 3);
-          const b = {
-            ...sound,
-            isPlaying: true,
-          };
-          return b;
-        }
-        fadeInSound(sound.gainNode, sound.bufferSource, actx, sound.gain, 3);
+
+        fadeInSound(gainNode, audioSource, actx, sound.gain, 3);
+
         const b = {
           ...sound,
+          bufferSource: audioSource,
+          panNode: panNode,
+          gainNode: gainNode,
           isPlaying: true,
+          isCleared: false,
         };
-        return b;
-      });
-      return updatedBuffer;
-    });
-    setBuffers(updatedBuffers);
-  };
-
-  const stopSounds = (frameIndex: number) => {
-    if (!actx) return;
-    const buffersToStop = [...buffers];
-    const updatedBuffers = buffersToStop.map((sounds, i) => {
-      if (i !== frameIndex) return sounds;
-      const updatedBuffer = sounds.map((sound) => {
-        if (!sound.bufferSource || !sound.gainNode || !sound.panNode)
-          return sound;
-
-        if (!sound.isPlaying) return sound;
-        fadeOutSound(sound.gainNode, sound.bufferSource, actx, sound.gain, 3);
-        const b = {
-          ...sound,
-          isPlaying: false,
-          isCleared: true,
-        };
-
+        b.buff_state = "ready";
         return b;
       });
 
       return updatedBuffer;
     });
+
     setBuffers(updatedBuffers);
   };
 
-  return { startSoundEffects, stopSounds, preLoadEffect, playSound };
+  return { startSoundEffects, preLoadEffect, playSound };
 }
 
-const setUpAudioNodes = (acontext: AudioContext, buffer: AudioBuffer) => {
+const setUpAudioNodes = (
+  acontext: AudioContext,
+  buffer: AudioBuffer,
+  masterGain: GainNode
+) => {
   const audioSource = acontext.createBufferSource();
   audioSource.buffer = buffer;
   const gainNode = acontext.createGain();
   const panNode = acontext.createStereoPanner();
-  audioSource.connect(gainNode).connect(panNode).connect(acontext.destination);
+  audioSource
+    .connect(gainNode)
+    .connect(panNode)
+    .connect(masterGain)
+    .connect(acontext.destination);
 
   return { audioSource, gainNode, panNode };
 };
@@ -212,7 +230,6 @@ const fadeInSound = (
   volume: number,
   delay: number
 ) => {
-  console.log(volume);
   gainNode.gain.setValueAtTime(0, acontext.currentTime);
   gainNode.gain.linearRampToValueAtTime(volume, acontext.currentTime + delay);
   audioSource.start();

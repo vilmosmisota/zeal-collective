@@ -1,50 +1,43 @@
 import { useEffect, useState } from "react";
+import { useLogger } from "../../utils/hooks";
 
-type TLoadBuffers = {
-  mactx: AudioContext;
-  sounds: {
-    name: string;
-    path: string;
-    frame: number[];
-  }[];
-};
-type TBuffers = {
+type TSoundtracks = {
   name: string;
+  path: string;
+  gain: number;
   frame: number[];
-  isPlaying: boolean;
-  audio: AudioBuffer;
-  audioSource: AudioBufferSourceNode;
-  gainNode: GainNode;
 };
 
-export async function loadSoundtrackBuffers({ mactx, sounds }: TLoadBuffers) {
+type TAudioNode = {
+  buffer: AudioBuffer;
+  bufferSource: AudioBufferSourceNode | null;
+  gainNode: GainNode | null;
+  analyzerNode: AnalyserNode | null;
+  isPlaying: boolean;
+};
+
+type TSoundtrackBuffers = TSoundtracks & TAudioNode;
+
+export async function loadSoundtrackBuffers(
+  actx: AudioContext,
+  tracks: TSoundtracks[]
+) {
   const getFile = async (filePath: string) => {
     const response = await fetch(filePath);
     const arrayBuffer = await response.arrayBuffer();
-    const audioBuffer = await mactx.decodeAudioData(arrayBuffer);
+    const audioBuffer = await actx.decodeAudioData(arrayBuffer);
     return audioBuffer;
   };
 
   const audioBuffers = Promise.all(
-    sounds.map(async (sound) => {
-      const buffer = await getFile(sound.path);
-      const audioSource = new AudioBufferSourceNode(mactx, {
-        buffer: buffer,
-      });
-      audioSource.connect(mactx.destination);
-      audioSource.loop = true;
-
-      const gainSource = mactx.createGain();
-      audioSource.connect(gainSource);
-      gainSource.connect(mactx.destination);
-
+    tracks.map(async (track) => {
+      const buffer = await getFile(track.path);
       return {
-        name: sound.name,
-        frame: sound.frame,
+        ...track,
+        buffer,
         isPlaying: false,
-        audio: buffer,
-        audioSource: audioSource,
-        gainNode: gainSource,
+        bufferSource: null,
+        gainNode: null,
       };
     })
   );
@@ -52,102 +45,144 @@ export async function loadSoundtrackBuffers({ mactx, sounds }: TLoadBuffers) {
   return audioBuffers;
 }
 
-type TStartAudio = {
-  audio: TBuffers;
-  frameIndex: number;
-};
-
-export const useSoundtrackBuffer = () => {
-  const [isLoading, setLoading] = useState(false);
-  const [isBuffersLoaded, setBuffersLoaded] = useState(false);
-  const [buffers, setBuffers] = useState<null | TBuffers[]>(null);
-  const [actx, setActx] = useState<null | AudioContext>(null);
-
-  const loadBuffers = async ({ mactx, sounds }: TLoadBuffers) => {
-    setLoading(true);
-    const bs = await loadSoundtrackBuffers({ mactx, sounds });
-    setBuffers(bs);
-    setLoading(false);
-    setBuffersLoaded(true);
-    setActx(mactx);
-  };
-
-  return { buffers, actx, loadBuffers, isBuffersLoaded };
-};
-
 export const useSoundtrackMix = () => {
-  const {
-    actx,
-    buffers,
-    isBuffersLoaded: isSoundtracksLoaded,
-    loadBuffers: startSoundtracks,
-  } = useSoundtrackBuffer();
+  const [isSoundtracksLoaded, setBuffersLoaded] = useState(false);
+  const [buffers, setBuffers] = useState<null | TSoundtrackBuffers[]>(null);
+  const [actx, setActx] = useState<null | AudioContext>(null);
+  const [masterGain, setMasterGain] = useState<null | GainNode>(null);
 
-  useEffect(() => {
-    if (!isSoundtracksLoaded || !buffers || !actx) return;
+  const startSoundtracks = async (
+    actx: AudioContext,
+    mGain: GainNode,
+    analyzerN: AnalyserNode,
+    tracks: TSoundtracks[]
+  ) => {
+    const loadedBuffers = await loadSoundtrackBuffers(actx, tracks);
 
-    const startAudio = ({ audio, frameIndex }: TStartAudio) => {
-      audio.gainNode.gain.setValueAtTime(-1, actx.currentTime);
+    const trackBuffers = loadedBuffers.map((track) => {
+      const { audioSource, gainNode, analyzerNode } = setUpAudioNodes(
+        actx,
+        track.buffer,
+        mGain,
+        analyzerN
+      );
+      audioSource.loop = true;
+      gainNode.gain.value = 0;
 
-      if (audio.frame.includes(frameIndex) === false) {
-        audio.audioSource.start();
-        return;
+      if (track.frame.includes(0) === false) {
+        audioSource.start();
+        const b = {
+          ...track,
+          bufferSource: audioSource,
+          analyzerNode: analyzerN,
+          gainNode: gainNode,
+        };
+        return b;
       }
 
-      audio.gainNode.gain.linearRampToValueAtTime(1, actx.currentTime + 3);
-      audio.audioSource.start();
-      audio.isPlaying = true;
-    };
-
-    buffers.forEach((audio) => {
-      if (!actx) return;
-      startAudio({ audio, frameIndex: 0 });
+      fadeInSound(gainNode, audioSource, actx, track.gain, 3);
+      const b = {
+        ...track,
+        bufferSource: audioSource,
+        analyzerNode: analyzerN,
+        gainNode: gainNode,
+        isPlaying: true,
+      };
+      return b;
     });
-  }, [actx, buffers, isSoundtracksLoaded]);
-
-  const handleFrameChange = ({ audio, frameIndex }: TStartAudio) => {
-    if (!actx) return;
-    if (
-      audio.frame.includes(frameIndex) === false &&
-      audio.isPlaying === false
-    ) {
-      return;
-    }
-
-    if (audio.frame.includes(frameIndex) === true && audio.isPlaying === true) {
-      return;
-    }
-
-    if (
-      audio.frame.includes(frameIndex) === false &&
-      audio.isPlaying === true
-    ) {
-      audio.gainNode.gain.setValueAtTime(1, actx.currentTime);
-      audio.gainNode.gain.linearRampToValueAtTime(-1, actx.currentTime + 3);
-      audio.isPlaying = false;
-      return;
-    }
-
-    if (
-      audio.frame.includes(frameIndex) === true &&
-      audio.isPlaying === false
-    ) {
-      audio.gainNode.gain.setValueAtTime(-1, actx.currentTime);
-      audio.gainNode.gain.linearRampToValueAtTime(1, actx.currentTime + 3);
-      audio.isPlaying = true;
-      return;
-    }
+    setBuffers(trackBuffers);
+    setBuffersLoaded(true);
+    setActx(actx);
+    setMasterGain(mGain);
   };
 
-  const changeFrameSoundtrack = (frameIndex: number) => {
-    if (!buffers) return;
-    buffers.forEach((audio) => {
-      if (!actx) return;
-      handleFrameChange({ audio, frameIndex });
+  const playSoundtrack = (frameIndex: number) => {
+    if (!actx || !masterGain || !buffers) return;
+    const buffersToPlay = [...buffers];
+    const updatedBuffers = buffersToPlay.map((buffer) => {
+      if (
+        buffer.frame.includes(frameIndex) === false &&
+        buffer.isPlaying === false &&
+        buffer.gainNode
+      ) {
+        return buffer;
+      }
+
+      if (
+        buffer.frame.includes(frameIndex) === true &&
+        buffer.isPlaying === true
+      ) {
+        return buffer;
+      }
+
+      if (
+        buffer.frame.includes(frameIndex) === false &&
+        buffer.isPlaying === true &&
+        buffer.gainNode
+      ) {
+        buffer.gainNode.gain.setValueAtTime(buffer.gain, actx.currentTime);
+        buffer.gainNode.gain.linearRampToValueAtTime(0, actx.currentTime + 3);
+        const b = {
+          ...buffer,
+          isPlaying: false,
+        };
+
+        return b;
+      }
+
+      if (
+        buffer.frame.includes(frameIndex) === true &&
+        buffer.isPlaying === false &&
+        buffer.gainNode
+      ) {
+        buffer.gainNode.gain.setValueAtTime(0, actx.currentTime);
+        buffer.gainNode.gain.linearRampToValueAtTime(
+          buffer.gain,
+          actx.currentTime + 3
+        );
+
+        const b = {
+          ...buffer,
+          isPlaying: true,
+        };
+        return b;
+      }
+
+      return buffer;
     });
+    setBuffers(updatedBuffers);
   };
 
-  // return { changeFrameSoundtrack, startSoundtracks };
+  return { startSoundtracks, isSoundtracksLoaded, playSoundtrack };
+};
 
-  return { startSoundtracks, isSoundtracksLoaded, changeFrameSoundtrack };
+const setUpAudioNodes = (
+  acontext: AudioContext,
+  buffer: AudioBuffer,
+  masterGain: GainNode,
+  analyzerNode: AnalyserNode
+) => {
+  const audioSource = acontext.createBufferSource();
+  audioSource.buffer = buffer;
+  const gainNode = acontext.createGain();
+
+  audioSource
+    .connect(gainNode)
+    .connect(masterGain)
+    .connect(analyzerNode)
+    .connect(acontext.destination);
+
+  return { audioSource, gainNode, analyzerNode };
+};
+
+const fadeInSound = (
+  gainNode: GainNode,
+  audioSource: AudioBufferSourceNode,
+  acontext: AudioContext,
+  volume: number,
+  delay: number
+) => {
+  gainNode.gain.setValueAtTime(0, acontext.currentTime);
+  gainNode.gain.linearRampToValueAtTime(volume, acontext.currentTime + delay);
+  audioSource.start();
 };

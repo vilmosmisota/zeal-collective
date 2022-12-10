@@ -12,43 +12,48 @@ import {
 } from "../../components/project/slider/SliderFrameT1";
 import ControlBtnsT1 from "../../components/project/controlBar/ControlBtnsT1";
 
-import {
-  useSoundtrackBuffer,
-  useSoundtrackMix,
-} from "../../providers/audio/soundtrackMix";
 import { useUIEffectMix } from "../../providers/audio/uiSoundEffectsMix";
-import { useSoundEffectMix } from "../../providers/audio/backingSoundEffectsMix";
+import {
+  TSounds,
+  useSoundEffectMix,
+} from "../../providers/audio/backingSoundEffectsMix";
+import { useSoundtrackMix } from "../../providers/audio/soundtrackMix";
 
 const sounds = [
   {
     name: "airpad",
     path: "https://res.cloudinary.com/vilmosmisota/video/upload/v1667944686/media-app/Vilmos%20Misota/photos/airpad_cbvt0e.wav",
+    gain: 0.6,
     frame: [0, 1, 2, 3, 4, 5, 6, 7],
   },
   {
     name: "elements",
     path: "https://res.cloudinary.com/vilmosmisota/video/upload/v1667944685/media-app/Vilmos%20Misota/photos/elements-section_yymltx.wav",
+    gain: 0.6,
     frame: [],
   },
   {
     name: "choir",
     path: "https://res.cloudinary.com/vilmosmisota/video/upload/v1667944684/media-app/Vilmos%20Misota/photos/choir_iryevc.wav",
+    gain: 0.6,
     frame: [3, 4],
   },
   {
     name: "bass",
     path: "https://res.cloudinary.com/vilmosmisota/video/upload/v1667945419/media-app/Vilmos%20Misota/photos/bass2_f8e27t.wav",
 
+    gain: 0.6,
     frame: [2, 3, 4, 7, 8],
   },
   {
     name: "deeptech",
     path: "https://res.cloudinary.com/vilmosmisota/video/upload/v1667944684/media-app/Vilmos%20Misota/photos/deeptech_zst7gu.wav",
+    gain: 0.6,
     frame: [4, 5, 6, 7, 8],
   },
 ];
 
-const sEffects = [
+const sEffects: TSounds[][] = [
   [
     {
       name: "seaside",
@@ -58,6 +63,7 @@ const sEffects = [
       loop: true,
       repeat: false,
       random_start: false,
+      buff_state: "empty",
     },
     {
       name: "thunder1",
@@ -67,6 +73,7 @@ const sEffects = [
       loop: false,
       repeat: false,
       random_start: false,
+      buff_state: "empty",
     },
   ],
   [
@@ -78,6 +85,7 @@ const sEffects = [
       loop: true,
       repeat: false,
       random_start: false,
+      buff_state: "empty",
     },
   ],
   [
@@ -89,6 +97,7 @@ const sEffects = [
       loop: true,
       repeat: false,
       random_start: false,
+      buff_state: "empty",
     },
     {
       name: "crushing-wave",
@@ -98,6 +107,7 @@ const sEffects = [
       loop: false,
       repeat: false,
       random_start: false,
+      buff_state: "empty",
     },
   ],
   [
@@ -109,6 +119,7 @@ const sEffects = [
       loop: true,
       repeat: false,
       random_start: false,
+      buff_state: "empty",
     },
   ],
   [
@@ -120,6 +131,7 @@ const sEffects = [
       loop: true,
       repeat: false,
       random_start: false,
+      buff_state: "empty",
     },
     {
       name: "crushing-wave",
@@ -129,6 +141,7 @@ const sEffects = [
       loop: false,
       repeat: false,
       random_start: false,
+      buff_state: "empty",
     },
   ],
   [
@@ -140,6 +153,7 @@ const sEffects = [
       loop: true,
       repeat: false,
       random_start: false,
+      buff_state: "empty",
     },
   ],
 ];
@@ -152,143 +166,132 @@ export default function ProjectView({ project }: ProjectProps) {
   const { height: windowHeight } = useWindowDimensions();
   const [isStarted, setIsStarted] = useState(false);
 
-  // const [bufferState, setBufferState] = useState<null | AudioBuffer>(null);
-  // const [bSource, setBSource] = useState<AudioBufferSourceNode | null>(null);
-  // const [analyzer, setAnalyzer] = useState<AudioAnalyzer | null>(null);
-  // const [audioBuffer, setAudioBuffer] = useState<[] | AudioBuffer[]>([]);
-  // const b64 = useBase64(
-  //   "https://kyvqisljtzamvrttkpad.supabase.co/storage/v1/object/sign/soundtracks/01.%20The%20Mark%20(Interlude).mp3?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiJzb3VuZHRyYWNrcy8wMS4gVGhlIE1hcmsgKEludGVybHVkZSkubXAzIiwiaWF0IjoxNjY2MDIyMzY0LCJleHAiOjE5ODEzODIzNjR9._243msyX6P-sl_DDfgx4o33hzn0DjBWhM6_N4dXeD2Y"
-  // );
+  const [analyzer, setAnalyzer] = useState<AnalyserNode | null>(null);
+
   const [actx, setActx] = useState<null | AudioContext>(null);
-  const { isSoundtracksLoaded, startSoundtracks, changeFrameSoundtrack } =
+  const [masterGain, setMasterGain] = useState<null | GainNode>(null);
+  const initializerAudioRef = useRef<HTMLAudioElement | null>(null);
+  const [masterVolume, setMasterVolume] = useState(0.7);
+  const [muted, setMuted] = useState(false);
+  const finalVolume = muted ? 0 : masterVolume;
+  const { startSoundtracks, isSoundtracksLoaded, playSoundtrack } =
     useSoundtrackMix();
-  const { startSoundEffects, stopSounds, preLoadEffect, playSound } =
-    useSoundEffectMix();
+  const { startSoundEffects, preLoadEffect, playSound } = useSoundEffectMix();
   const soundBarRef = useRef<HTMLCanvasElement | null>(null);
   const { loadClickBuffer, playClick } = useUIEffectMix();
 
   const handleStart = async () => {
+    if (!actx || !initializerAudioRef.current) return;
+    initializerAudioRef.current.play().catch((err) => console.warn(err));
     setIsStarted(true);
-    const mactx = new AudioContext();
-    await startSoundtracks({ mactx, sounds }).catch((err) => console.warn(err));
-    await loadClickBuffer(mactx, clickSound).catch((err) => console.warn(err));
-    await startSoundEffects(sEffects[0], mactx);
-    await preLoadEffect(sEffects[1], mactx);
-    setActx(mactx);
+    const mgain = actx.createGain();
+    const mAnalyser = actx.createAnalyser();
+    mgain.gain.value = finalVolume;
+    await startSoundtracks(actx, mgain, mAnalyser, sounds).catch((err) =>
+      console.warn(err)
+    );
+    await loadClickBuffer(actx, clickSound).catch((err) => console.warn(err));
+    await startSoundEffects(sEffects[0], actx, mgain).catch((err) =>
+      console.warn(err)
+    );
+    await preLoadEffect(sEffects[1], actx, mgain, 1).catch((err) =>
+      console.warn(err)
+    );
+    setActx(actx);
+    setMasterGain(mgain);
+    setAnalyzer(mAnalyser);
   };
 
   const handleForward = async () => {
     const limit = project.frames.length - 1;
     if (frameIndex === limit) return;
     setFrameIndex((prev) => prev + 1);
-    changeFrameSoundtrack(frameIndex + 1);
+    playSoundtrack(frameIndex + 1);
     if (!actx) return;
+    if (!masterGain) return;
     playClick(actx);
-
     playSound(frameIndex + 1);
-    stopSounds(frameIndex);
-    await preLoadEffect(sEffects[frameIndex + 2], actx);
+    await preLoadEffect(
+      sEffects[frameIndex + 2],
+      actx,
+      masterGain,
+      frameIndex + 2
+    );
   };
 
   const handleBackward = () => {
     if (frameIndex === 0) return;
     setFrameIndex((prev) => prev - 1);
-    changeFrameSoundtrack(frameIndex - 1);
+    playSoundtrack(frameIndex - 1);
     if (!actx) return;
     playClick(actx);
 
     playSound(frameIndex - 1);
-    stopSounds(frameIndex);
   };
 
-  // useEffect(() => {
-  //   if (!isStarted) return;
-  //   const mainSoundRef = mainSoundtrackRef.current;
-  //   if (!mainSoundRef) return;
-  //   setAnalyzer(new AudioAnalyzer(mainSoundRef));
-  // }, [isStarted]);
+  const handleMute = () => {
+    if (!actx) return;
+    masterGain?.gain.setValueAtTime(1, actx.currentTime);
+    masterGain?.gain.linearRampToValueAtTime(0, actx.currentTime + 2);
+    setMuted(true);
+  };
 
-  // useEffect(() => {
-  //   const mainSoundRef = mainSoundtrackRef.current;
-  //   if (!mainSoundRef) return;
+  useEffect(() => {
+    const soundBar = soundBarRef.current;
+    if (!soundBar) return;
 
-  //   if (isPausePlay) {
-  //     mainSoundRef.play().catch((err) => console.warn(err));
-  //   } else {
-  //     mainSoundRef.pause();
-  //   }
-  // }, [isPausePlay]);
+    let x;
+    let animationFrameId: number;
 
-  // useEffect(() => {
-  //   const soundBar = soundBarRef.current;
+    const soundBarCtx = soundBar.getContext("2d");
 
-  //   if (!b64) return;
-  //   if (!soundBar) return;
-  //   if (!analyzer) return;
+    if (!analyzer) return;
+    analyzer.fftSize = 64;
+    const fftLength = analyzer.fftSize;
 
-  //   let barHeight;
-  //   let x;
-  //   let animationFrameId: number;
+    const barWidth = soundBar.width / fftLength;
 
-  //   const soundBarCtx = soundBar.getContext("2d");
+    function animate() {
+      if (!soundBarCtx || !soundBar || !analyzer) return;
+      soundBarCtx.clearRect(0, 0, soundBar.width, soundBar.height);
+      const frequencyData = new Uint8Array(analyzer.frequencyBinCount);
+      analyzer.getByteFrequencyData(frequencyData);
+      x = 2;
+      for (let i = 0; i < frequencyData.length; i++) {
+        const barHeight = frequencyData[i] / 10;
 
-  //   const { fftLength } = analyzer.getFft();
+        soundBarCtx.fillStyle = "rgba(237, 234, 208, 0.2)";
 
-  //   const barWidth = soundBar.width / fftLength;
+        soundBarCtx.fillRect(x, soundBar.height - barHeight, 6, barHeight);
 
-  //   function animate() {
-  //     if (!soundBarCtx) return;
-  //     if (!soundBar) return;
-  //     soundBarCtx.clearRect(0, 0, soundBar.width, soundBar.height);
-  //     x = 0;
-  //     if (!analyzer) return;
-  //     const { freqData } = analyzer.getFft();
-  //     for (let i = 0; i < fftLength; i++) {
-  //       barHeight = freqData[i] / 3;
+        x += barWidth + 6;
+      }
 
-  //       soundBarCtx.fillStyle = "#EDDBD0";
-  //       soundBarCtx.fillRect(
-  //         x,
-  //         soundBar.height - barHeight,
-  //         barWidth,
-  //         barHeight
-  //       );
-  //       x += barWidth;
-  //     }
-  //     animationFrameId = window.requestAnimationFrame(animate);
-  //   }
-  //   animate();
+      animationFrameId = window.requestAnimationFrame(animate);
+    }
+    animate();
 
-  //   return () => {
-  //     window.cancelAnimationFrame(animationFrameId);
-  //   };
-  // }, [b64, analyzer]);
+    return () => {
+      window.cancelAnimationFrame(animationFrameId);
+    };
+  }, [analyzer]);
 
-  // useEffect(() => {
-  //   // const st = mainSoundtrackRef.current;
-  //   // if (!st) return;
+  useEffect(() => {
+    let ignore = false;
+    if (ignore) return;
+    const audioCtx = new AudioContext();
+    const audioElement = initializerAudioRef.current;
+    if (!audioElement) return;
 
-  //   const actx = new AudioContext();
-  //   const fetchSong = async (path: string) => {
-  //     const xhr = await fetch(path);
-  //     const arrayBuffer = await xhr.arrayBuffer();
-  //     return actx.decodeAudioData(arrayBuffer);
-  //   };
+    audioElement.volume = 0;
+    const audioSource = audioCtx.createMediaElementSource(audioElement);
+    audioSource.connect(audioCtx.destination);
+    setActx(audioCtx);
 
-  //   const setBufferFn = async () => {
-  //     const aBuffer = await fetchSong(
-  //       "https://kyvqisljtzamvrttkpad.supabase.co/storage/v1/object/sign/soundtracks/beat_1.wav?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiJzb3VuZHRyYWNrcy9iZWF0XzEud2F2IiwiaWF0IjoxNjY2Mjk5NTgyLCJleHAiOjE5ODE2NTk1ODJ9.8pmjqjpn-xZyaZZyc2MZ0d1c6xDbGm4tH95TJX5pf78&t=2022-10-20T20%3A59%3A41.272Z"
-  //     );
-  //     setBufferState(aBuffer);
-  //   };
-  //   setBufferFn();
-
-  //   if (!bufferState) return;
-  //   const playSound = actx.createBufferSource();
-  //   playSound.buffer = bufferState;
-  //   playSound.connect(actx.destination);
-  //   setBSource(playSound);
-  // }, []);
+    return () => {
+      ignore = true;
+    };
+  }, []);
 
   return (
     <>
@@ -296,6 +299,7 @@ export default function ProjectView({ project }: ProjectProps) {
         className={` w-screen overscroll-contain overflow-hidden relative bg-zinc50`}
         style={{ height: `${windowHeight}px` }}
       >
+        <audio ref={initializerAudioRef} src={clickSound}></audio>
         {!isStarted && (
           <IntroT1
             title={project.title}
@@ -308,6 +312,7 @@ export default function ProjectView({ project }: ProjectProps) {
 
         {isStarted && isSoundtracksLoaded && (
           <SliderWrapperT1>
+            <div className="absolute -z-1 top-[50%] left-0 w-full h-[calc(100%_-_120px)] -translate-y-2/4 shadow-vignette50"></div>
             <GrainCanvas />
             <SliderFrameT1 frame={project.frames[frameIndex]} />
             {project.frames.length > frameIndex + 1 && (
@@ -315,27 +320,19 @@ export default function ProjectView({ project }: ProjectProps) {
             )}
           </SliderWrapperT1>
         )}
+        <div></div>
       </main>
       {isStarted && isSoundtracksLoaded && (
         <section className="z-30 fixed bottom-0 left-0 bg-black h-[60px] w-screen flex items-center">
-          <div className="mx-auto w-full max-w-screen-md flex items-center justify-between px-2">
-            {/* <div className="w-2/6 max-w-[200px] flex items-center justify-center flex-col">
-              <div className="relative w-[100px] h-[25px]">
-                <canvas
-                  className=" border-2 rounded-lg"
-                  ref={soundBarRef}
-                  width={100}
-                  height={25}
-                />
-                <div className="absolute top-2/4 left-2/4  -translate-x-[50%] -translate-y-2/4 ">
-                  <SoundOnBtn />
-                </div>
-              </div>
-            </div> */}
+          <div className="mx-auto w-full max-w-[300px] flex items-center justify-between px-2">
+            <div className="absolute bottom-0 left-[50%] -translate-x-[50%] h-[25px] ">
+              <canvas className="" ref={soundBarRef} width={100} height={25} />
+            </div>
 
             <ControlBtnsT1
               handleBackward={handleBackward}
               handleForward={handleForward}
+              handleMute={handleMute}
             />
           </div>
         </section>

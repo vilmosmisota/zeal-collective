@@ -2,22 +2,26 @@ export const soundss = [
   {
     name: "airpad",
     path: "/sounds/tracks/airpad.wav",
+    gain: 0.6,
     frame: [0, 1, 2, 3, 4, 5, 6, 7],
   },
   {
     name: "elements",
     path: "/sounds/tracks/elements-section.wav",
+    gain: 0.6,
     frame: [],
   },
   {
     name: "choir",
     path: "/sounds/tracks/choir.wav",
+    gain: 0.6,
     frame: [3, 4],
   },
   {
     name: "bass",
     path: "/sounds/tracks/bass2.wav",
 
+    gain: 0.6,
     frame: [2, 3, 4, 7, 8],
   },
   {
@@ -37,6 +41,7 @@ const sEffects = [
       loop: true,
       repeat: false,
       random_start: false,
+      buff_state: "empty",
     },
     {
       name: "thunder1",
@@ -46,6 +51,7 @@ const sEffects = [
       loop: false,
       repeat: false,
       random_start: false,
+      buff_state: "empty",
     },
     {
       name: "thunder2",
@@ -55,6 +61,7 @@ const sEffects = [
       loop: false,
       repeat: false,
       random_start: false,
+      buff_state: "empty",
     },
   ],
   [
@@ -66,6 +73,7 @@ const sEffects = [
       loop: true,
       repeat: false,
       random_start: false,
+      buff_state: "empty",
     },
   ],
   [
@@ -77,6 +85,7 @@ const sEffects = [
       loop: true,
       repeat: false,
       random_start: false,
+      buff_state: "empty",
     },
     {
       name: "crushing-wave",
@@ -86,6 +95,7 @@ const sEffects = [
       loop: false,
       repeat: false,
       random_start: false,
+      buff_state: "empty",
     },
   ],
   [
@@ -97,6 +107,7 @@ const sEffects = [
       loop: true,
       repeat: false,
       random_start: false,
+      buff_state: "empty",
     },
   ],
   [
@@ -108,6 +119,7 @@ const sEffects = [
       loop: true,
       repeat: false,
       random_start: false,
+      buff_state: "empty",
     },
     {
       name: "crushing-wave",
@@ -117,6 +129,7 @@ const sEffects = [
       loop: false,
       repeat: false,
       random_start: false,
+      buff_state: "empty",
     },
   ],
   [
@@ -128,6 +141,7 @@ const sEffects = [
       loop: true,
       repeat: false,
       random_start: false,
+      buff_state: "empty",
     },
   ],
 ];
@@ -140,27 +154,32 @@ const soundscloud = [
   {
     name: "airpad",
     path: "https://res.cloudinary.com/vilmosmisota/video/upload/v1667944686/media-app/Vilmos%20Misota/photos/airpad_cbvt0e.wav",
+    gain: 0.6,
     frame: [0, 1, 2, 3, 4, 5, 6, 7],
   },
   {
     name: "elements",
     path: "https://res.cloudinary.com/vilmosmisota/video/upload/v1667944685/media-app/Vilmos%20Misota/photos/elements-section_yymltx.wav",
+    gain: 0.6,
     frame: [],
   },
   {
     name: "choir",
     path: "https://res.cloudinary.com/vilmosmisota/video/upload/v1667944684/media-app/Vilmos%20Misota/photos/choir_iryevc.wav",
+    gain: 0.6,
     frame: [3, 4],
   },
   {
     name: "bass",
     path: "https://res.cloudinary.com/vilmosmisota/video/upload/v1667945419/media-app/Vilmos%20Misota/photos/bass2_f8e27t.wav",
 
+    gain: 0.6,
     frame: [2, 3, 4, 7, 8],
   },
   {
     name: "deeptech",
     path: "https://res.cloudinary.com/vilmosmisota/video/upload/v1667944684/media-app/Vilmos%20Misota/photos/deeptech_zst7gu.wav",
+    gain: 0.6,
     frame: [4, 5, 6, 7, 8],
   },
 ];
@@ -175,6 +194,7 @@ const sEffectscloud = [
       loop: true,
       repeat: false,
       random_start: false,
+      buff_state: "empty",
     },
     {
       name: "thunder1",
@@ -184,6 +204,7 @@ const sEffectscloud = [
       loop: false,
       repeat: false,
       random_start: false,
+      buff_state: "empty",
     },
   ],
   [
@@ -195,6 +216,7 @@ const sEffectscloud = [
       loop: true,
       repeat: false,
       random_start: false,
+      buff_state: "empty",
     },
   ],
   [
@@ -206,6 +228,7 @@ const sEffectscloud = [
       loop: true,
       repeat: false,
       random_start: false,
+      buff_state: "empty",
     },
     {
       name: "crushing-wave",
@@ -215,6 +238,7 @@ const sEffectscloud = [
       loop: false,
       repeat: false,
       random_start: false,
+      buff_state: "empty",
     },
   ],
   [
@@ -226,6 +250,7 @@ const sEffectscloud = [
       loop: true,
       repeat: false,
       random_start: false,
+      buff_state: "empty",
     },
   ],
   [
@@ -237,6 +262,7 @@ const sEffectscloud = [
       loop: true,
       repeat: false,
       random_start: false,
+      buff_state: "empty",
     },
     {
       name: "crushing-wave",
@@ -246,6 +272,7 @@ const sEffectscloud = [
       loop: false,
       repeat: false,
       random_start: false,
+      buff_state: "empty",
     },
   ],
   [
@@ -257,6 +284,7 @@ const sEffectscloud = [
       loop: true,
       repeat: false,
       random_start: false,
+      buff_state: "empty",
     },
   ],
 ];
