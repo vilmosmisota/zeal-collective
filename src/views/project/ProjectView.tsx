@@ -158,8 +158,7 @@ const sEffects: TSounds[][] = [
   ],
 ];
 
-const clickSound =
-  "https://res.cloudinary.com/vilmosmisota/video/upload/v1669505147/media-app/Vilmos%20Misota/soundeffects/camera-shutter_r6l6u9.wav";
+const clickSound = "/sounds/effects/camera-shutter.wav";
 
 export default function ProjectView({ project }: ProjectProps) {
   const [frameIndex, setFrameIndex] = useState(0);
@@ -283,7 +282,7 @@ export default function ProjectView({ project }: ProjectProps) {
     const audioElement = initializerAudioRef.current;
     if (!audioElement) return;
 
-    audioElement.volume = 0.5;
+    audioElement.volume = 0;
     const audioSource = audioCtx.createMediaElementSource(audioElement);
     audioSource.connect(audioCtx.destination);
     setActx(audioCtx);
