@@ -1,6 +1,7 @@
 import Image from "next/future/image";
 import Logo from "../logo/Logo";
 import burger from "../../assets/icons/burger.svg";
+import Link from "next/link";
 
 export default function Navbar() {
   const theme: "dark" | "light" = "dark";
@@ -11,9 +12,11 @@ export default function Navbar() {
       } w-screen h-[60px]   z-50 flex justify-center fixed top-0 left-0`}
     >
       <div className="px-4 py-2 w-full max-w-screen-xl flex items-center justify-between mx-auto">
-        <div>
-          <Logo theme="light" />
-        </div>
+        <Link href="/">
+          <div>
+            <Logo theme="light" />
+          </div>
+        </Link>
         <div>
           <button className="cursor-pointer">
             <BurgerIcon theme={theme} />

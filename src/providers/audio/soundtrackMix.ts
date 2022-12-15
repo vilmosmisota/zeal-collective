@@ -80,7 +80,7 @@ export const useSoundtrackMix = () => {
         return b;
       }
 
-      fadeInSound(gainNode, audioSource, actx, track.gain, 3);
+      fadeInSound(gainNode, audioSource, actx, track.gain, 3, 2);
       const b = {
         ...track,
         bufferSource: audioSource,
@@ -180,9 +180,13 @@ const fadeInSound = (
   audioSource: AudioBufferSourceNode,
   acontext: AudioContext,
   volume: number,
-  delay: number
+  delay: number,
+  start: number
 ) => {
   gainNode.gain.setValueAtTime(0, acontext.currentTime);
-  gainNode.gain.linearRampToValueAtTime(volume, acontext.currentTime + delay);
-  audioSource.start();
+  gainNode.gain.linearRampToValueAtTime(
+    volume,
+    acontext.currentTime + delay + start
+  );
+  audioSource.start(start);
 };

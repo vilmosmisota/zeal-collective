@@ -6,39 +6,30 @@ type IntroTemplate1Props = {
   description: string;
   name: string;
   featured_img: string;
-  handleClick: () => void;
+  isStarted: boolean;
+  isSoundtracksLoaded: boolean;
 };
 
 export default function IntroT1({
   title,
   description,
-  name,
-  featured_img,
-  handleClick,
+  isStarted,
+  isSoundtracksLoaded,
 }: IntroTemplate1Props) {
   return (
-    <header className="absolute top-0 p-4 left-0 h-full w-full z-40 bg-zinc50 overflow-y-scroll flex justify-center items-center flex-col md:flex-row">
-      <div className="mt-20 text-center mb-6 md:w-[50%] md:mr-6 max-w-lg">
-        <h1 className=" font-sansHeading font-black uppercase">{title}</h1>
-        <p>by</p>
-        <h3 className="mb-4 md:mb-12">{name}</h3>
-        <p className="text">{description}</p>
-      </div>
+    <header
+      className={`absolute ${
+        isSoundtracksLoaded ? "-top-[100%]" : "top-0"
+      }  p-4 left-0 h-full w-full z-20 bg-zinc50 overflow-y-auto`}
+    >
       <div
-        onClick={handleClick}
-        className="max-w-[500px] min-w-full md:min-w-min md:max-w-lg md:w-[50%] max-h-[500px]  mb-6 relative"
+        className={`${
+          isStarted ? "opacity-0" : "opacity-100"
+        } mt-20 text-center mb-6 md:w-[50%]  max-w-lg mx-auto`}
       >
-        <div className="mb-5 w-full h-full aspect-square  relative filter brightness-50 ">
-          <Image
-            src={featured_img}
-            alt={title}
-            fill
-            className="cover-img rounded-xl"
-          />
-        </div>
-        <div className="absolute top-[50%] left-[50%] -translate-x-[50%] -translate-y-[50%]">
-          <BigPlayBtn />
-        </div>
+        <h1 className=" font-sansHeading font-black uppercase mb-5">{title}</h1>
+
+        <p className="text text-left">{description}</p>
       </div>
     </header>
   );

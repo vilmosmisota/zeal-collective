@@ -32,6 +32,10 @@
   .cover-img {
     @apply object-cover h-full w-full;
   }
+
+  .center-absolute {
+    @apply top-[50%] left-[50%] -translate-x-[50%] -translate-y-[50%];
+  }
 }
 
 .min-safe-h-screen {
@@ -62,8 +66,8 @@ body.dark {
 }
 
 body {
-  overscroll-behavior-y: none;
-  overflow: hidden;
+  /* overscroll-behavior-y: none;
+  overflow: hidden; */
 }
 
 /* html {

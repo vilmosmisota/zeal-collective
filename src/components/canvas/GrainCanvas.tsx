@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import { useWindowDimensions } from "../../utils/hooks";
+import { motion } from "framer-motion";
 
 export default function GrainCanvas() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -70,8 +71,14 @@ export default function GrainCanvas() {
     };
   }, [windowWidth, windowHeight]);
   return (
-    <canvas className="absolute w-full h-full top-0 left-0 z-0" ref={canvasRef}>
+    <motion.canvas
+      className="absolute w-full h-full top-0 left-0 z-0"
+      ref={canvasRef}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 1 }}
+    >
       <canvas ref={grainRef} />
-    </canvas>
+    </motion.canvas>
   );
 }

@@ -3,11 +3,14 @@ import Image from "next/future/image";
 import { MutableRefObject, useEffect, useRef, useState } from "react";
 import { IFrame } from "../../../providers/supabase/interfaces/I_supabase";
 import useMediaQuery, { useWindowDimensions } from "../../../utils/hooks";
+import ScaleUpBtn from "../../buttons/ScaleUpBtn";
 
 export const SliderFrameT1 = ({ frame }: { frame: IFrame }) => {
   const imgRef = useRef<HTMLDivElement | null>(null);
   const { vw, windowHeight } = useAutoSrcsetSize(imgRef, frame.id);
   const isLarge = useMediaQuery("(min-width: 768px)");
+  const [isZoomed, setIsZoomed] = useState(false);
+  const isDynamic = isLarge && !isZoomed;
 
   return (
     <AnimatePresence>
@@ -15,45 +18,64 @@ export const SliderFrameT1 = ({ frame }: { frame: IFrame }) => {
         key={frame.id}
         className={`${getFrameTheme(
           frame.color_theme
-        )} w-screen h-full  overscroll-contain   flex-shrink-0 flex items-center justify-center`}
+        )} w-screen  md:mx-auto h-full flex-shrink-0 flex items-center justify-center`}
         style={{ height: `${windowHeight}px` }}
       >
-        {frame.images.map((img, i) => {
-          return (
-            <motion.div
-              variants={animateFrame}
-              custom={i}
-              animate={
-                !isLarge && frame.images[0].position !== "center"
-                  ? "animateScaleUp"
-                  : "animateDefault"
-              }
-              initial={
-                !isLarge && frame.images[0].position !== "center"
-                  ? "initScaleUp"
-                  : "initDefault"
-              }
-              exit={{ opacity: 0 }}
-              ref={imgRef}
-              style={getAnimationScaleOrigin(isLarge, frame.images[0].position)}
-              className={`z-10 w-full touch-none md:aspect-[${img.width}/${
-                img.height
-              }]  ${getImageSize(img.size)} ${getImageLayout(img.position)}`}
-              key={img.url}
-            >
-              <Image
-                src={img.url}
-                alt={"title"}
-                width={img.width}
-                height={img.height}
-                className=" md:object-cover md:h-full md:w-full w-full h-auto"
-                loading="eager"
-                quality={100}
-                sizes={isLarge ? `${vw}vw` : "90vw"}
-              />
-            </motion.div>
-          );
-        })}
+        <div
+          className={` md:w-[90%] w-full  flex items-center justify-center h-[80%] overflow-hidden transition-all duration-500 `}
+        >
+          <div
+            className={`${
+              isZoomed ? "scale-[200%]" : "scale-[100%]"
+            } w-full h-full flex items-center justify-center  transition-all duration-500`}
+          >
+            {frame.images.map((img, i) => {
+              return (
+                <motion.div
+                  variants={animateFrame}
+                  custom={i}
+                  animate={
+                    !isLarge && frame.images[0].position !== "center"
+                      ? "animateScaleUp"
+                      : "animateDefault"
+                  }
+                  initial={
+                    !isLarge && frame.images[0].position !== "center"
+                      ? "initScaleUp"
+                      : "initDefault"
+                  }
+                  exit={{ opacity: 0 }}
+                  ref={imgRef}
+                  style={getAnimationScaleOrigin(
+                    isLarge,
+                    frame.images[0].position
+                  )}
+                  className={`  z-10 w-full  touch-none md:aspect-[${
+                    img.width
+                  }/${img.height}]  ${getImageSize(img.size)} ${getImageLayout(
+                    img.position
+                  )}`}
+                  key={img.url}
+                >
+                  <Image
+                    src={img.url}
+                    alt={"title"}
+                    width={img.width}
+                    height={img.height}
+                    className=" md:object-cover md:h-full md:w-full w-full h-auto"
+                    loading="eager"
+                    quality={100}
+                    // sizes={isDynamic ? `${vw}vw` : "90vw"}
+                    sizes={getImageSrcsetSize(img.size, isZoomed)}
+                  />
+                </motion.div>
+              );
+            })}
+          </div>
+        </div>
+        <div className="absolute z-50 bottom-[70px] right-10">
+          <ScaleUpBtn handleClick={() => setIsZoomed(!isZoomed)} />
+        </div>
       </motion.div>
     </AnimatePresence>
   );
@@ -77,7 +99,7 @@ const getAnimationScaleOrigin = (mediaSize: boolean, position: string) => {
 };
 
 const getImageLayout = (position: "left" | "center" | "right" | "cover") => {
-  const left = "mx-4 md:ml-[15%] md:mr-auto";
+  const left = `mx-4 md:ml-[15%] md:mr-auto`;
   const right = "mx-4 md:mr-[15%] md:ml-auto";
   const center = "mx-4 md:mx-4";
   const cover = "mx-4 md:m-0";
@@ -98,6 +120,24 @@ const getImageSize = (size: "small" | "large" | "full") => {
   const small = "md:max-w-[500px]";
   const large = "md:max-w-[700px]";
   const full = " md:w-screen md:h-screen";
+
+  if (size === "small") return small;
+  if (size === "large") return large;
+  if (size === "full") return full;
+  return "";
+};
+
+const getImageSrcsetSize = (
+  size: "small" | "large" | "full",
+  isZoomed: boolean
+) => {
+  const small = isZoomed
+    ? "calc(100vw - 36px)"
+    : "(min-width: 550px) calc(100vw - (100vw - 500px)), calc(100vw - 36px)";
+  const large = isZoomed
+    ? "calc(100vw - 36px)"
+    : "(min-width: 768px) calc(100vw - (100vw - 700px)), calc(100vw - 36px)";
+  const full = "calc(100vw - 36px)";
 
   if (size === "small") return small;
   if (size === "large") return large;
@@ -167,6 +207,7 @@ const animateFrame = {
 export const SliderFrameToPreloadT1 = ({ frame }: { frame: IFrame }) => {
   const imgRef = useRef<HTMLDivElement | null>(null);
   const { vw, windowHeight } = useAutoSrcsetSize(imgRef, frame.id);
+  const isZoomed = false;
 
   return (
     <div
@@ -182,7 +223,7 @@ export const SliderFrameToPreloadT1 = ({ frame }: { frame: IFrame }) => {
             ref={imgRef}
             className={`z-10 w-full touch-none md:aspect-[${img.width}/${
               img.height
-            }]  ${getImageSize(img.size)} ${getImageLayout(img.position)}`}
+            }]  ${getImageSize(img.size)} mx-4 md:mx-4`}
             key={img.url}
           >
             <Image
@@ -193,7 +234,7 @@ export const SliderFrameToPreloadT1 = ({ frame }: { frame: IFrame }) => {
               className=" md:object-cover md:h-full md:w-full w-full h-auto"
               loading="eager"
               quality={100}
-              sizes={`${vw}vw`}
+              sizes={getImageSrcsetSize(img.size, isZoomed)}
             />
           </div>
         );

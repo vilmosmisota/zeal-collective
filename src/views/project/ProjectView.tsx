@@ -18,36 +18,38 @@ import {
   useSoundEffectMix,
 } from "../../providers/audio/backingSoundEffectsMix";
 import { useSoundtrackMix } from "../../providers/audio/soundtrackMix";
+import { BigPlayBtn } from "../../components/buttons/BigPlayBtn";
+import { motion } from "framer-motion";
 
 const sounds = [
   {
     name: "airpad",
-    path: "https://res.cloudinary.com/vilmosmisota/video/upload/v1667944686/media-app/Vilmos%20Misota/photos/airpad_cbvt0e.wav",
+    path: "/sounds/tracks/airpad.flac",
     gain: 0.6,
     frame: [0, 1, 2, 3, 4, 5, 6, 7],
   },
   {
     name: "elements",
-    path: "https://res.cloudinary.com/vilmosmisota/video/upload/v1667944685/media-app/Vilmos%20Misota/photos/elements-section_yymltx.wav",
+    path: "/sounds/tracks/elements-section.flac",
     gain: 0.6,
     frame: [],
   },
   {
     name: "choir",
-    path: "https://res.cloudinary.com/vilmosmisota/video/upload/v1667944684/media-app/Vilmos%20Misota/photos/choir_iryevc.wav",
+    path: "/sounds/tracks/choir.flac",
     gain: 0.6,
     frame: [3, 4],
   },
   {
     name: "bass",
-    path: "https://res.cloudinary.com/vilmosmisota/video/upload/v1667945419/media-app/Vilmos%20Misota/photos/bass2_f8e27t.wav",
+    path: "/sounds/tracks/bass2.flac",
 
     gain: 0.6,
     frame: [2, 3, 4, 7, 8],
   },
   {
     name: "deeptech",
-    path: "https://res.cloudinary.com/vilmosmisota/video/upload/v1667944684/media-app/Vilmos%20Misota/photos/deeptech_zst7gu.wav",
+    path: "/sounds/tracks/deeptech.flac",
     gain: 0.6,
     frame: [4, 5, 6, 7, 8],
   },
@@ -57,7 +59,7 @@ const sEffects: TSounds[][] = [
   [
     {
       name: "seaside",
-      path: "https://res.cloudinary.com/vilmosmisota/video/upload/v1669505153/media-app/Vilmos%20Misota/soundeffects/seaside_sql9ng.wav",
+      path: "/sounds/effects/seaside.flac",
       gain: 0.3,
       pan: 1,
       loop: true,
@@ -67,9 +69,19 @@ const sEffects: TSounds[][] = [
     },
     {
       name: "thunder1",
-      path: "https://res.cloudinary.com/vilmosmisota/video/upload/v1669505148/media-app/Vilmos%20Misota/soundeffects/thunder1_aai5hx.wav",
-      gain: 0.3,
+      path: "/sounds/effects/thunder1.flac",
+      gain: 0.1,
       pan: -1,
+      loop: false,
+      repeat: false,
+      random_start: false,
+      buff_state: "empty",
+    },
+    {
+      name: "thunder2",
+      path: "/sounds/effects/thunder2.flac",
+      gain: 0.1,
+      pan: 1,
       loop: false,
       repeat: false,
       random_start: false,
@@ -79,9 +91,9 @@ const sEffects: TSounds[][] = [
   [
     {
       name: "seawash",
-      path: "https://res.cloudinary.com/vilmosmisota/video/upload/v1669505152/media-app/Vilmos%20Misota/soundeffects/walking-in-water_gxcqxd.wav",
+      path: "/sounds/effects/walking-in-water.flac",
       gain: 0.3,
-      pan: 0,
+      pan: 1,
       loop: true,
       repeat: false,
       random_start: false,
@@ -91,9 +103,9 @@ const sEffects: TSounds[][] = [
   [
     {
       name: "ocean-pulse",
-      path: "https://res.cloudinary.com/vilmosmisota/video/upload/v1669505150/media-app/Vilmos%20Misota/soundeffects/ocean-wave-pulse_abiw9i.wav",
+      path: "/sounds/effects/ocean-wave-pulse.flac",
       gain: 0.3,
-      pan: 0,
+      pan: -1,
       loop: true,
       repeat: false,
       random_start: false,
@@ -101,7 +113,7 @@ const sEffects: TSounds[][] = [
     },
     {
       name: "crushing-wave",
-      path: "https://res.cloudinary.com/vilmosmisota/video/upload/v1669505149/media-app/Vilmos%20Misota/soundeffects/crushing-wave_pm5nr8.wav",
+      path: "/sounds/effects/crushing-wave.flac",
       gain: 0.3,
       pan: -1,
       loop: false,
@@ -113,7 +125,7 @@ const sEffects: TSounds[][] = [
   [
     {
       name: "rocky-coast",
-      path: "https://res.cloudinary.com/vilmosmisota/video/upload/v1669505150/media-app/Vilmos%20Misota/soundeffects/rocky-coast_blb5mb.wav",
+      path: "/sounds/effects/rocky-coast.flac",
       gain: 0.5,
       pan: 0,
       loop: true,
@@ -125,7 +137,7 @@ const sEffects: TSounds[][] = [
   [
     {
       name: "ocean-pulse",
-      path: "https://res.cloudinary.com/vilmosmisota/video/upload/v1669505150/media-app/Vilmos%20Misota/soundeffects/ocean-wave-pulse_abiw9i.wav",
+      path: "/sounds/effects/ocean-wave-pulse.flac",
       gain: 0.3,
       pan: 0,
       loop: true,
@@ -135,7 +147,7 @@ const sEffects: TSounds[][] = [
     },
     {
       name: "crushing-wave",
-      path: "https://res.cloudinary.com/vilmosmisota/video/upload/v1669505149/media-app/Vilmos%20Misota/soundeffects/crushing-wave_pm5nr8.wav",
+      path: "/sounds/effects/crushing-wave.flac",
       gain: 0.3,
       pan: -1,
       loop: false,
@@ -147,7 +159,7 @@ const sEffects: TSounds[][] = [
   [
     {
       name: "underwater",
-      path: "https://res.cloudinary.com/vilmosmisota/video/upload/v1669505151/media-app/Vilmos%20Misota/soundeffects/underwater_xea0wd.wav",
+      path: "/sounds/effects/underwater.flac",
       gain: 0.5,
       pan: 0,
       loop: true,
@@ -158,7 +170,7 @@ const sEffects: TSounds[][] = [
   ],
 ];
 
-const clickSound = "/sounds/effects/camera-shutter.wav";
+const clickSound = "/sounds/effects/camera-shutter.flac";
 
 export default function ProjectView({ project }: ProjectProps) {
   const [frameIndex, setFrameIndex] = useState(0);
@@ -289,6 +301,7 @@ export default function ProjectView({ project }: ProjectProps) {
 
     return () => {
       ignore = true;
+      audioCtx.close().catch((err) => console.warn(err));
     };
   }, []);
 
@@ -299,19 +312,24 @@ export default function ProjectView({ project }: ProjectProps) {
         style={{ height: `${windowHeight}px` }}
       >
         <audio ref={initializerAudioRef} src={clickSound} autoPlay></audio>
-        {!isStarted && (
-          <IntroT1
-            title={project.title}
-            description={project.description}
-            name={`${project.artists.first_name} ${project.artists.last_name}`}
-            featured_img={project.featured_img}
-            handleClick={handleStart}
-          />
-        )}
+
+        <IntroT1
+          title={project.title}
+          description={project.description}
+          name={`${project.artists.first_name} ${project.artists.last_name}`}
+          featured_img={project.featured_img}
+          isStarted={isStarted}
+          isSoundtracksLoaded={isSoundtracksLoaded}
+        />
 
         {isStarted && isSoundtracksLoaded && (
           <SliderWrapperT1>
-            <div className="absolute -z-1 top-[50%] left-0 w-full h-[calc(100%_-_120px)] -translate-y-2/4 shadow-vignette50"></div>
+            <motion.div
+              initial={{ boxShadow: "0 0 0px rgba(0,0,0,0.2) inset" }}
+              animate={{ boxShadow: "0 0 50px rgba(0,0,0,0.2) inset" }}
+              transition={{ duration: 1, delay: 1 }}
+              className="absolute -z-1 top-[50%] left-0 w-full h-[calc(100%_-_120px)] -translate-y-2/4"
+            ></motion.div>
             <GrainCanvas />
             <SliderFrameT1 frame={project.frames[frameIndex]} />
             {project.frames.length > frameIndex + 1 && (
@@ -319,23 +337,44 @@ export default function ProjectView({ project }: ProjectProps) {
             )}
           </SliderWrapperT1>
         )}
-        <div></div>
-      </main>
-      {isStarted && isSoundtracksLoaded && (
+
+        {isStarted && isSoundtracksLoaded && (
+          <section className="z-30 fixed bottom-[70px] h-6 w-full">
+            <div className="absolute left-5 top-2">
+              <p className="text-xs text-zinc600">
+                {`${frameIndex + 1} / ${project.frames.length}`}
+              </p>
+            </div>
+          </section>
+        )}
+
         <section className="z-30 fixed bottom-0 left-0 bg-black h-[60px] w-screen flex items-center">
           <div className="mx-auto w-full max-w-[300px] flex items-center justify-between px-2">
-            <div className="absolute bottom-0 left-[50%] -translate-x-[50%] h-[25px] ">
-              <canvas className="" ref={soundBarRef} width={100} height={25} />
-            </div>
+            {isStarted && isSoundtracksLoaded ? (
+              <>
+                <div className="absolute bottom-0 left-[50%] -translate-x-[50%] h-[25px] ">
+                  <canvas
+                    className=""
+                    ref={soundBarRef}
+                    width={100}
+                    height={25}
+                  />
+                </div>
 
-            <ControlBtnsT1
-              handleBackward={handleBackward}
-              handleForward={handleForward}
-              handleMute={handleMute}
-            />
+                <ControlBtnsT1
+                  handleBackward={handleBackward}
+                  handleForward={handleForward}
+                  handleMute={handleMute}
+                />
+              </>
+            ) : (
+              <div className=" w-full mx-3 relative flex justify-center items-center">
+                <BigPlayBtn handleStart={handleStart} />
+              </div>
+            )}
           </div>
         </section>
-      )}
+      </main>
     </>
   );
 }

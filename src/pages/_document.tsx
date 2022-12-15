@@ -15,7 +15,7 @@ export default function Document() {
           rel="stylesheet"
         />
       </Head>
-      <body className="font-serif overflow-x-hidden dark">
+      <body className="font-serif overflow-x-hidden bg-zinc300">
         <Main />
         <NextScript />
       </body>

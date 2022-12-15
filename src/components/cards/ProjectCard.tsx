@@ -24,7 +24,7 @@ export default function ProjectCard({
 
   return (
     <Link href={`/project/${projectMeta.slug}`}>
-      <article className="rounded-xl bg-zinc300 p-4 mb-5 max-w-[400px] flex flex-col w-full min-w-[320px] hover:bg-zinc50 transition-all ease-in-out duration-300 cursor-pointer ">
+      <article className="rounded-xl bg-zinc50 p-4 mb-5 max-w-[400px] flex flex-col w-full min-w-[320px] transition-all ease-in-out duration-300 cursor-pointer ">
         <div className="mb-5 w-full h-full aspect-square  relative ">
           <Image
             src={featuredImg.src}

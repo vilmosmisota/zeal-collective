@@ -100,7 +100,16 @@ export function useSoundEffectMix() {
 
       if (sound.loop) {
         audioSource.loop = true;
-        fadeInSound(gainNode, audioSource, actx, sound.gain, 3);
+        fadeInSound(
+          gainNode,
+          panNode,
+          audioSource,
+          actx,
+          sound.gain,
+          sound.pan,
+          3,
+          1
+        );
         const b = {
           ...sound,
           bufferSource: audioSource,
@@ -111,7 +120,16 @@ export function useSoundEffectMix() {
         b.buff_state = "ready";
         return b;
       }
-      fadeInSound(gainNode, audioSource, actx, sound.gain, 3);
+      fadeInSound(
+        gainNode,
+        panNode,
+        audioSource,
+        actx,
+        sound.gain,
+        sound.pan,
+        3,
+        1
+      );
 
       const b = {
         ...sound,
@@ -169,7 +187,16 @@ export function useSoundEffectMix() {
 
         if (sound.loop) {
           audioSource.loop = true;
-          fadeInSound(gainNode, audioSource, actx, sound.gain, 3);
+          fadeInSound(
+            gainNode,
+            panNode,
+            audioSource,
+            actx,
+            sound.gain,
+            sound.pan,
+            3,
+            0
+          );
           const b = {
             ...sound,
             bufferSource: audioSource,
@@ -182,7 +209,16 @@ export function useSoundEffectMix() {
           return b;
         }
 
-        fadeInSound(gainNode, audioSource, actx, sound.gain, 3);
+        fadeInSound(
+          gainNode,
+          panNode,
+          audioSource,
+          actx,
+          sound.gain,
+          sound.pan,
+          3,
+          0
+        );
 
         const b = {
           ...sound,
@@ -214,6 +250,7 @@ const setUpAudioNodes = (
   audioSource.buffer = buffer;
   const gainNode = acontext.createGain();
   const panNode = acontext.createStereoPanner();
+
   audioSource
     .connect(gainNode)
     .connect(panNode)
@@ -225,14 +262,21 @@ const setUpAudioNodes = (
 
 const fadeInSound = (
   gainNode: GainNode,
+  panNode: StereoPannerNode,
   audioSource: AudioBufferSourceNode,
   acontext: AudioContext,
   volume: number,
-  delay: number
+  pan: number,
+  delay: number,
+  start: number
 ) => {
+  panNode.pan.setValueAtTime(pan, acontext.currentTime);
   gainNode.gain.setValueAtTime(0, acontext.currentTime);
-  gainNode.gain.linearRampToValueAtTime(volume, acontext.currentTime + delay);
-  audioSource.start();
+  gainNode.gain.linearRampToValueAtTime(
+    volume,
+    acontext.currentTime + delay + start
+  );
+  audioSource.start(start);
 };
 
 const fadeOutSound = (
