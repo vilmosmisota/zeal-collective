@@ -27,6 +27,7 @@ export const soundss = [
   {
     name: "deeptech",
     path: "/sounds/tracks/deeptech.wav",
+    gain: 0.6,
     frame: [4, 5, 6, 7, 8],
   },
 ];

@@ -32,8 +32,11 @@ export const useUIEffectMix = () => {
     });
     audioSource.connect(actx.destination);
     audioSource.connect(clickAudioNode.gainSource);
-    clickAudioNode.gainSource.gain.value = -0.7;
-    audioSource.playbackRate.value = 1;
+
+    const rates = [0.8, 0.9, 1, 1.1, 1.2];
+    const randomNumber = Math.floor(Math.random() * 5);
+    clickAudioNode.gainSource.gain.value = -0.9;
+    audioSource.playbackRate.value = rates[randomNumber];
     audioSource.start();
   };
 

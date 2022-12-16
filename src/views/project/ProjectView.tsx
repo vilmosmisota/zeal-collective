@@ -20,37 +20,41 @@ import {
 import { useSoundtrackMix } from "../../providers/audio/soundtrackMix";
 import { BigPlayBtn } from "../../components/buttons/BigPlayBtn";
 import { motion } from "framer-motion";
+import DropdownBtn from "../../components/buttons/DropdownBtn";
+import MuteBtn from "../../components/buttons/MuteBtn";
+import CloseBtn from "../../components/buttons/CloseBtn";
+import { SoundOnBtn } from "../../components/buttons/SoundOnBtn";
 
 const sounds = [
   {
     name: "airpad",
     path: "/sounds/tracks/airpad.flac",
-    gain: 0.6,
+    gain: 0.9,
     frame: [0, 1, 2, 3, 4, 5, 6, 7],
   },
   {
     name: "elements",
     path: "/sounds/tracks/elements-section.flac",
-    gain: 0.6,
+    gain: 0.8,
     frame: [],
   },
   {
     name: "choir",
     path: "/sounds/tracks/choir.flac",
-    gain: 0.6,
+    gain: 0.9,
     frame: [3, 4],
   },
   {
     name: "bass",
     path: "/sounds/tracks/bass2.flac",
 
-    gain: 0.6,
+    gain: 0.8,
     frame: [2, 3, 4, 7, 8],
   },
   {
     name: "deeptech",
     path: "/sounds/tracks/deeptech.flac",
-    gain: 0.6,
+    gain: 0.8,
     frame: [4, 5, 6, 7, 8],
   },
 ];
@@ -60,7 +64,7 @@ const sEffects: TSounds[][] = [
     {
       name: "seaside",
       path: "/sounds/effects/seaside.flac",
-      gain: 0.3,
+      gain: 0.1,
       pan: 1,
       loop: true,
       repeat: false,
@@ -92,7 +96,7 @@ const sEffects: TSounds[][] = [
     {
       name: "seawash",
       path: "/sounds/effects/walking-in-water.flac",
-      gain: 0.3,
+      gain: 0.1,
       pan: 1,
       loop: true,
       repeat: false,
@@ -104,7 +108,7 @@ const sEffects: TSounds[][] = [
     {
       name: "ocean-pulse",
       path: "/sounds/effects/ocean-wave-pulse.flac",
-      gain: 0.3,
+      gain: 0.1,
       pan: -1,
       loop: true,
       repeat: false,
@@ -114,7 +118,7 @@ const sEffects: TSounds[][] = [
     {
       name: "crushing-wave",
       path: "/sounds/effects/crushing-wave.flac",
-      gain: 0.3,
+      gain: 0.1,
       pan: -1,
       loop: false,
       repeat: false,
@@ -126,7 +130,7 @@ const sEffects: TSounds[][] = [
     {
       name: "rocky-coast",
       path: "/sounds/effects/rocky-coast.flac",
-      gain: 0.5,
+      gain: 0.3,
       pan: 0,
       loop: true,
       repeat: false,
@@ -138,7 +142,7 @@ const sEffects: TSounds[][] = [
     {
       name: "ocean-pulse",
       path: "/sounds/effects/ocean-wave-pulse.flac",
-      gain: 0.3,
+      gain: 0.1,
       pan: 0,
       loop: true,
       repeat: false,
@@ -148,7 +152,7 @@ const sEffects: TSounds[][] = [
     {
       name: "crushing-wave",
       path: "/sounds/effects/crushing-wave.flac",
-      gain: 0.3,
+      gain: 0.1,
       pan: -1,
       loop: false,
       repeat: false,
@@ -160,7 +164,7 @@ const sEffects: TSounds[][] = [
     {
       name: "underwater",
       path: "/sounds/effects/underwater.flac",
-      gain: 0.5,
+      gain: 0.3,
       pan: 0,
       loop: true,
       repeat: false,
@@ -181,23 +185,22 @@ export default function ProjectView({ project }: ProjectProps) {
 
   const [actx, setActx] = useState<null | AudioContext>(null);
   const [masterGain, setMasterGain] = useState<null | GainNode>(null);
-  const initializerAudioRef = useRef<HTMLAudioElement | null>(null);
-  const [masterVolume, setMasterVolume] = useState(0.7);
-  const [muted, setMuted] = useState(false);
-  const finalVolume = muted ? 0 : masterVolume;
+  const volumeSliderRef = useRef<HTMLInputElement | null>(null);
+  const [masterVolume, setMasterVolume] = useState(0.8);
   const { startSoundtracks, isSoundtracksLoaded, playSoundtrack } =
     useSoundtrackMix();
   const { startSoundEffects, preLoadEffect, playSound } = useSoundEffectMix();
   const soundBarRef = useRef<HTMLCanvasElement | null>(null);
   const { loadClickBuffer, playClick } = useUIEffectMix();
+  const [isDropdownActive, setDropdownActive] = useState(false);
 
   const handleStart = async () => {
-    if (!actx || !initializerAudioRef.current) return;
-    initializerAudioRef.current.play().catch((err) => console.warn(err));
+    if (!actx) return;
+
     setIsStarted(true);
     const mgain = actx.createGain();
     const mAnalyser = actx.createAnalyser();
-    mgain.gain.value = finalVolume;
+    mgain.gain.value = masterVolume;
     await startSoundtracks(actx, mgain, mAnalyser, sounds).catch((err) =>
       console.warn(err)
     );
@@ -238,13 +241,6 @@ export default function ProjectView({ project }: ProjectProps) {
     playClick(actx);
 
     playSound(frameIndex - 1);
-  };
-
-  const handleMute = () => {
-    if (!actx) return;
-    masterGain?.gain.setValueAtTime(1, actx.currentTime);
-    masterGain?.gain.linearRampToValueAtTime(0, actx.currentTime + 2);
-    setMuted(true);
   };
 
   useEffect(() => {
@@ -291,19 +287,31 @@ export default function ProjectView({ project }: ProjectProps) {
     let ignore = false;
     if (ignore) return;
     const audioCtx = new AudioContext();
-    const audioElement = initializerAudioRef.current;
-    if (!audioElement) return;
-
-    audioElement.volume = 0;
-    const audioSource = audioCtx.createMediaElementSource(audioElement);
-    audioSource.connect(audioCtx.destination);
     setActx(audioCtx);
 
     return () => {
       ignore = true;
+
       audioCtx.close().catch((err) => console.warn(err));
+      setActx(null);
     };
   }, []);
+
+  const handleMute = (masterVolume: number) => {
+    if (!masterGain || !actx) return;
+    masterGain.gain.setValueAtTime(masterVolume, actx.currentTime);
+    masterGain.gain.linearRampToValueAtTime(0, actx.currentTime + 2);
+    setMasterVolume(0);
+  };
+
+  const handleVolumeChange = () => {
+    if (!volumeSliderRef.current || !masterGain || !actx) return;
+
+    const vol = Number(volumeSliderRef.current.value) / 10;
+    masterGain.gain.setValueAtTime(masterVolume, actx.currentTime);
+    masterGain.gain.linearRampToValueAtTime(vol, actx.currentTime);
+    setMasterVolume(vol);
+  };
 
   return (
     <>
@@ -311,7 +319,7 @@ export default function ProjectView({ project }: ProjectProps) {
         className={` w-screen overscroll-contain overflow-hidden relative bg-zinc50`}
         style={{ height: `${windowHeight}px` }}
       >
-        <audio ref={initializerAudioRef} src={clickSound} autoPlay></audio>
+        {/* <audio ref={initializerAudioRef} src={clickSound} autoPlay></audio> */}
 
         <IntroT1
           title={project.title}
@@ -360,11 +368,54 @@ export default function ProjectView({ project }: ProjectProps) {
                     height={25}
                   />
                 </div>
+                <div className="absolute h-full top-0 left-[50%] -translate-x-[50%]">
+                  {/* {isDropdownActive && (
+                    <div className="absolute h-full -top-6 left-[50%] -translate-x-[50%]">
+                      <CloseBtn handleClick={() => setDropdownActive(false)} />
+                    </div>
+                  )} */}
+                  <div
+                    className={`${
+                      isDropdownActive ? "-top-5 " : "top-0"
+                    } absolute 
+                      left-[50%] -translate-x-[50%] transition-all duration-500`}
+                  >
+                    <DropdownBtn
+                      handleClick={() => setDropdownActive(!isDropdownActive)}
+                      isDropdownActive={isDropdownActive}
+                    />
+                  </div>
+
+                  {isDropdownActive && (
+                    <div
+                      className=" absolute 
+                     top-[50%] left-[50%] -translate-x-[50%] -translate-y-[50%] flex"
+                    >
+                      {masterVolume === 0 ? (
+                        <MuteBtn
+                          handleClick={handleMute}
+                          masterVolume={masterVolume}
+                        />
+                      ) : (
+                        <SoundOnBtn />
+                      )}
+
+                      <input
+                        ref={volumeSliderRef}
+                        className="ml-2 w-24  "
+                        type="range"
+                        min="0"
+                        max="10"
+                        value={masterVolume * 10}
+                        onChange={handleVolumeChange}
+                      />
+                    </div>
+                  )}
+                </div>
 
                 <ControlBtnsT1
                   handleBackward={handleBackward}
                   handleForward={handleForward}
-                  handleMute={handleMute}
                 />
               </>
             ) : (

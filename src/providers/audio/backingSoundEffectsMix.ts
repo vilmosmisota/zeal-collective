@@ -128,7 +128,7 @@ export function useSoundEffectMix() {
         sound.gain,
         sound.pan,
         3,
-        1
+        3
       );
 
       const b = {
