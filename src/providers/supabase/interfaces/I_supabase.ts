@@ -25,12 +25,12 @@ export interface IImage {
 }
 
 export interface IFrame {
-  color_theme: "light" | "dark";
   id: number;
   order: number;
   project_id: number;
   sound_effects: string[] | undefined;
   images: IImage[];
+  background: string[] | undefined;
 }
 
 export interface IArtist {

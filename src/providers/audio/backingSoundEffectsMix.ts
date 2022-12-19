@@ -10,6 +10,7 @@ export type TSounds = {
   repeat: boolean;
   random_start: boolean;
   buff_state: "empty" | "loaded" | "ready";
+  start: number;
 };
 
 type TAudioNode = {
@@ -25,6 +26,7 @@ type TBuffers = TSounds & TAudioNode;
 
 export async function loadBuffers(mactx: AudioContext, effects: TSounds[]) {
   const getFile = async (filePath: string) => {
+    console.log(filePath);
     const response = await fetch(filePath);
     const arrayBuffer = await response.arrayBuffer();
     const audioBuffer = await mactx.decodeAudioData(arrayBuffer);
@@ -120,6 +122,59 @@ export function useSoundEffectMix() {
         b.buff_state = "ready";
         return b;
       }
+
+      if (sound.repeat) {
+        audioSource.loop = true;
+
+        fadeInSound(
+          gainNode,
+          panNode,
+          audioSource,
+          actx,
+          sound.gain,
+          sound.pan,
+          3,
+          sound.start
+        );
+
+        const duration = sound.buffer.duration;
+        const volume = sound.gain;
+        const start = 0; // The starting number
+        const end = 20;
+        gainNode.gain.setValueAtTime(
+          sound.gain,
+          actx.currentTime + duration + sound.start - 0.5
+        );
+        gainNode.gain.linearRampToValueAtTime(
+          0,
+          actx.currentTime + duration + sound.start
+        );
+
+        for (let num = start; num <= end; ) {
+          const step = Math.floor(Math.random() * (12 - 8 + 1)) + 8 + duration; // Generate a random number between 8 and 12
+          num += step;
+
+          randomVolumes({
+            gainNode,
+            actx,
+            duration,
+            volume,
+            delay: num,
+            startedAt: sound.start,
+          });
+        }
+
+        const b = {
+          ...sound,
+          bufferSource: audioSource,
+          panNode: panNode,
+          gainNode: gainNode,
+          isPlaying: true,
+          isCleared: false,
+        };
+        b.buff_state = "ready";
+        return b;
+      }
       fadeInSound(
         gainNode,
         panNode,
@@ -195,8 +250,62 @@ export function useSoundEffectMix() {
             sound.gain,
             sound.pan,
             3,
-            0
+            sound.start
           );
+          const b = {
+            ...sound,
+            bufferSource: audioSource,
+            panNode: panNode,
+            gainNode: gainNode,
+            isPlaying: true,
+            isCleared: false,
+          };
+          b.buff_state = "ready";
+          return b;
+        }
+
+        if (sound.repeat) {
+          audioSource.loop = true;
+
+          fadeInSound(
+            gainNode,
+            panNode,
+            audioSource,
+            actx,
+            sound.gain,
+            sound.pan,
+            3,
+            sound.start
+          );
+
+          const duration = sound.buffer.duration;
+          const volume = sound.gain;
+          const start = 0; // The starting number
+          const end = 20;
+          gainNode.gain.setValueAtTime(
+            sound.gain,
+            actx.currentTime + duration + sound.start - 0.5
+          );
+          gainNode.gain.linearRampToValueAtTime(
+            0,
+            actx.currentTime + duration + sound.start
+          );
+
+          for (let num = start; num <= end; ) {
+            const step =
+              Math.floor(Math.random() * (12 - 8 + 1)) + 8 + duration; // Generate a random number between 8 and 12
+            num += step;
+            console.log(num);
+            randomVolumes({
+              gainNode,
+              actx,
+              duration,
+              volume,
+              delay: num,
+              startedAt: sound.start,
+            });
+          }
+
           const b = {
             ...sound,
             bufferSource: audioSource,
@@ -216,8 +325,8 @@ export function useSoundEffectMix() {
           actx,
           sound.gain,
           sound.pan,
-          3,
-          0
+          1,
+          sound.start
         );
 
         const b = {
@@ -276,7 +385,7 @@ const fadeInSound = (
     volume,
     acontext.currentTime + delay + start
   );
-  audioSource.start(start);
+  audioSource.start(acontext.currentTime + start);
 };
 
 const fadeOutSound = (
@@ -289,4 +398,37 @@ const fadeOutSound = (
   gainNode.gain.setValueAtTime(volume, acontext.currentTime);
   gainNode.gain.linearRampToValueAtTime(0, acontext.currentTime + delay);
   audioSource.stop(delay);
+};
+
+type TRandomVolumes = {
+  gainNode: GainNode;
+  actx: AudioContext;
+  duration: number;
+  volume: number;
+  delay: number;
+  startedAt: number;
+};
+
+const randomVolumes = ({
+  gainNode,
+  actx,
+  duration,
+  volume,
+  delay,
+  startedAt,
+}: TRandomVolumes) => {
+  gainNode.gain.setValueAtTime(0, actx.currentTime + delay + startedAt - 0.5);
+  gainNode.gain.linearRampToValueAtTime(
+    volume,
+    actx.currentTime + delay + startedAt
+  );
+
+  gainNode.gain.setValueAtTime(
+    volume,
+    actx.currentTime + delay + startedAt - 0.5
+  );
+  gainNode.gain.linearRampToValueAtTime(
+    0,
+    actx.currentTime + delay + duration + startedAt
+  );
 };

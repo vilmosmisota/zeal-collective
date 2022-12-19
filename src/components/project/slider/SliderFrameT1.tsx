@@ -16,9 +16,7 @@ export const SliderFrameT1 = ({ frame }: { frame: IFrame }) => {
     <AnimatePresence>
       <motion.div
         key={frame.id}
-        className={`${getFrameTheme(
-          frame.color_theme
-        )} w-screen  md:mx-auto h-full flex-shrink-0 flex items-center justify-center`}
+        className={` w-screen  md:mx-auto h-full flex-shrink-0 flex items-center justify-center relative`}
         style={{ height: `${windowHeight}px` }}
       >
         <div
@@ -145,14 +143,6 @@ const getImageSrcsetSize = (
   return "";
 };
 
-const getFrameTheme = (theme: "light" | "dark") => {
-  const dark = "bg-zinc800";
-  const light = "";
-  if (theme === "light") return light;
-  if (theme === "dark") return dark;
-  return "";
-};
-
 const useAutoSrcsetSize = (
   ref: MutableRefObject<HTMLDivElement | null>,
   id: number
@@ -212,9 +202,7 @@ export const SliderFrameToPreloadT1 = ({ frame }: { frame: IFrame }) => {
   return (
     <div
       key={frame.id}
-      className={`${getFrameTheme(
-        frame.color_theme
-      )} h-full w-screen overscroll-contain  flex-shrink-0 flex items-center justify-center absolute left-0 top-0 opacity-0 -z-10`}
+      className={` h-full w-screen overscroll-contain  flex-shrink-0 flex items-center justify-center absolute left-0 top-0 opacity-0 -z-10`}
       style={{ height: `${windowHeight}px` }}
     >
       {frame.images.map((img) => {

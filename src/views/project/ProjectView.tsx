@@ -24,13 +24,14 @@ import DropdownBtn from "../../components/buttons/DropdownBtn";
 import MuteBtn from "../../components/buttons/MuteBtn";
 import CloseBtn from "../../components/buttons/CloseBtn";
 import { SoundOnBtn } from "../../components/buttons/SoundOnBtn";
+import { prepareServerlessUrl } from "next/dist/server/base-server";
 
 const sounds = [
   {
     name: "airpad",
     path: "/sounds/tracks/airpad.flac",
-    gain: 0.9,
-    frame: [0, 1, 2, 3, 4, 5, 6, 7],
+    gain: 0.8,
+    frame: [1, 2, 3, 4, 5, 6, 7],
   },
   {
     name: "elements",
@@ -42,13 +43,13 @@ const sounds = [
     name: "choir",
     path: "/sounds/tracks/choir.flac",
     gain: 0.9,
-    frame: [3, 4],
+    frame: [3, 4, 5],
   },
   {
     name: "bass",
     path: "/sounds/tracks/bass2.flac",
 
-    gain: 0.8,
+    gain: 0.5,
     frame: [2, 3, 4, 7, 8],
   },
   {
@@ -64,12 +65,13 @@ const sEffects: TSounds[][] = [
     {
       name: "seaside",
       path: "/sounds/effects/seaside.flac",
-      gain: 0.1,
+      gain: 0.2,
       pan: 1,
       loop: true,
       repeat: false,
       random_start: false,
       buff_state: "empty",
+      start: 0,
     },
     {
       name: "thunder1",
@@ -77,54 +79,59 @@ const sEffects: TSounds[][] = [
       gain: 0.1,
       pan: -1,
       loop: false,
-      repeat: false,
+      repeat: true,
       random_start: false,
       buff_state: "empty",
+      start: 5,
     },
     {
       name: "thunder2",
       path: "/sounds/effects/thunder2.flac",
-      gain: 0.1,
+      gain: 0.2,
       pan: 1,
       loop: false,
-      repeat: false,
+      repeat: true,
       random_start: false,
       buff_state: "empty",
+      start: 10,
     },
   ],
   [
     {
       name: "seawash",
       path: "/sounds/effects/walking-in-water.flac",
-      gain: 0.1,
+      gain: 0.2,
       pan: 1,
       loop: true,
       repeat: false,
       random_start: false,
       buff_state: "empty",
+      start: 0,
     },
   ],
   [
     {
       name: "ocean-pulse",
       path: "/sounds/effects/ocean-wave-pulse.flac",
-      gain: 0.1,
+      gain: 0.3,
       pan: -1,
       loop: true,
       repeat: false,
       random_start: false,
       buff_state: "empty",
+      start: 0,
     },
-    {
-      name: "crushing-wave",
-      path: "/sounds/effects/crushing-wave.flac",
-      gain: 0.1,
-      pan: -1,
-      loop: false,
-      repeat: false,
-      random_start: false,
-      buff_state: "empty",
-    },
+    // {
+    //   name: "crushing-wave",
+    //   path: "/sounds/effects/crushing-wave.flac",
+    //   gain: 0.1,
+    //   pan: -1,
+    //   loop: false,
+    //   repeat: true,
+    //   random_start: false,
+    //   buff_state: "empty",
+    //   start: 7,
+    // },
   ],
   [
     {
@@ -136,28 +143,31 @@ const sEffects: TSounds[][] = [
       repeat: false,
       random_start: false,
       buff_state: "empty",
+      start: 0,
     },
   ],
   [
     {
       name: "ocean-pulse",
       path: "/sounds/effects/ocean-wave-pulse.flac",
-      gain: 0.1,
+      gain: 0.2,
       pan: 0,
       loop: true,
       repeat: false,
       random_start: false,
       buff_state: "empty",
+      start: 0,
     },
     {
       name: "crushing-wave",
       path: "/sounds/effects/crushing-wave.flac",
-      gain: 0.1,
+      gain: 0.2,
       pan: -1,
       loop: false,
       repeat: false,
       random_start: false,
       buff_state: "empty",
+      start: 5,
     },
   ],
   [
@@ -170,6 +180,77 @@ const sEffects: TSounds[][] = [
       repeat: false,
       random_start: false,
       buff_state: "empty",
+      start: 0,
+    },
+  ],
+  [
+    {
+      name: "atmoshphere-birds",
+      path: "/sounds/effects/atmosphere-birds.flac",
+      gain: 0.6,
+      pan: 0,
+      loop: true,
+      repeat: false,
+      random_start: false,
+      buff_state: "empty",
+      start: 0,
+    },
+    {
+      name: "sound-fishing",
+      path: "/sounds/effects/sound-fishing.flac",
+      gain: 1,
+      pan: 0,
+      loop: false,
+      repeat: false,
+      random_start: false,
+      buff_state: "empty",
+      start: 5,
+    },
+    {
+      name: "sound-ship-horn",
+      path: "/sounds/effects/sound-ship-horn.flac",
+      gain: 0.2,
+      pan: 1,
+      loop: false,
+      repeat: false,
+      random_start: false,
+      buff_state: "empty",
+      start: 12,
+    },
+    {
+      name: "sound-ship-horn",
+      path: "/sounds/effects/sound-ship-horn2.flac",
+      gain: 0.2,
+      pan: -1,
+      loop: false,
+      repeat: false,
+      random_start: false,
+      buff_state: "empty",
+      start: 20,
+    },
+  ],
+  [
+    {
+      name: "ocean-pulse",
+      path: "/sounds/effects/ocean-wave-pulse.flac",
+      gain: 0.2,
+      pan: 0,
+      loop: true,
+      repeat: false,
+      random_start: false,
+      buff_state: "empty",
+      start: 0,
+    },
+    {
+      name: "sound-flying-bird",
+      path: "/sounds/effects/sound-flying-bird.flac",
+      gain: 0.3,
+      pan: 1,
+      loop: false,
+      repeat: false,
+      random_start: false,
+      buff_state: "empty",
+      start: 10,
     },
   ],
 ];
@@ -193,6 +274,10 @@ export default function ProjectView({ project }: ProjectProps) {
   const soundBarRef = useRef<HTMLCanvasElement | null>(null);
   const { loadClickBuffer, playClick } = useUIEffectMix();
   const [isDropdownActive, setDropdownActive] = useState(false);
+  const [isBackground, setIsBackground] = useState<{
+    show: boolean;
+    data: undefined | string[];
+  }>({ show: false, data: undefined });
 
   const handleStart = async () => {
     if (!actx) return;
@@ -225,12 +310,16 @@ export default function ProjectView({ project }: ProjectProps) {
     if (!masterGain) return;
     playClick(actx);
     playSound(frameIndex + 1);
-    await preLoadEffect(
-      sEffects[frameIndex + 2],
-      actx,
-      masterGain,
-      frameIndex + 2
-    );
+    setBackgroundFrame(frameIndex + 1);
+
+    if (frameIndex + 1 !== limit) {
+      await preLoadEffect(
+        sEffects[frameIndex + 2],
+        actx,
+        masterGain,
+        frameIndex + 2
+      );
+    }
   };
 
   const handleBackward = () => {
@@ -241,6 +330,7 @@ export default function ProjectView({ project }: ProjectProps) {
     playClick(actx);
 
     playSound(frameIndex - 1);
+    setBackgroundFrame(frameIndex - 1);
   };
 
   useEffect(() => {
@@ -313,6 +403,21 @@ export default function ProjectView({ project }: ProjectProps) {
     setMasterVolume(vol);
   };
 
+  const setBackgroundFrame = (frameIndex: number) => {
+    if (!project.frames[frameIndex].background) {
+      setIsBackground({
+        show: false,
+        data: undefined,
+      });
+      return;
+    }
+
+    setIsBackground({
+      show: true,
+      data: project.frames[frameIndex].background,
+    });
+  };
+
   return (
     <>
       <main
@@ -338,6 +443,18 @@ export default function ProjectView({ project }: ProjectProps) {
               transition={{ duration: 1, delay: 1 }}
               className="absolute -z-1 top-[50%] left-0 w-full h-[calc(100%_-_120px)] -translate-y-2/4"
             ></motion.div>
+            {isBackground.show && isBackground.data && (
+              <motion.div
+                animate={{
+                  backgroundColor: `#${isBackground.data[0]}`,
+                  opacity: 1,
+                }}
+                transition={{ duration: 1 }}
+                initial={{ backgroundColor: `transparent`, opacity: 0 }}
+                exit={{ backgroundColor: `transparent`, opacity: 0 }}
+                className="absolute w-full h-full top-0 left-0"
+              ></motion.div>
+            )}
             <GrainCanvas />
             <SliderFrameT1 frame={project.frames[frameIndex]} />
             {project.frames.length > frameIndex + 1 && (
