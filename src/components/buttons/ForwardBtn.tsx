@@ -2,12 +2,17 @@ import { motion } from "framer-motion";
 
 type ForwardBtnProps = {
   handleClick: () => void;
+  isHide: boolean;
 };
-export const ForwardBtn = ({ handleClick }: ForwardBtnProps) => {
+export const ForwardBtn = ({ handleClick, isHide }: ForwardBtnProps) => {
   return (
     <button
       onClick={handleClick}
-      className="block absolute top-[50%] right-[0] -translate-y-[50%]  "
+      className={` ${
+        isHide
+          ? "opacity-25 pointer-events-none"
+          : "opacity-100 pointer-events-auto"
+      } block absolute top-[50%] right-[0] -translate-y-[50%]`}
     >
       <motion.svg
         viewBox="0 0 30 24"

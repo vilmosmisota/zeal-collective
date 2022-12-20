@@ -2,13 +2,18 @@ import { motion } from "framer-motion";
 
 type BackwardBtnProps = {
   handleClick: () => void;
+  isHide: boolean;
 };
 
-export const BackwardBtn = ({ handleClick }: BackwardBtnProps) => {
+export const BackwardBtn = ({ handleClick, isHide }: BackwardBtnProps) => {
   return (
     <button
       onClick={handleClick}
-      className="block absolute top-[50%] left-[0] -translate-y-[50%]  "
+      className={` ${
+        isHide
+          ? "opacity-25 pointer-events-none"
+          : "opacity-100 pointer-events-auto"
+      } block absolute top-[50%] left-[0] -translate-y-[50%]`}
     >
       <motion.svg
         viewBox="0 0 30 24"

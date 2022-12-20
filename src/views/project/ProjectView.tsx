@@ -250,7 +250,7 @@ const sEffects: TSounds[][] = [
       repeat: false,
       random_start: false,
       buff_state: "empty",
-      start: 10,
+      start: 5,
     },
   ],
 ];
@@ -278,6 +278,7 @@ export default function ProjectView({ project }: ProjectProps) {
     show: boolean;
     data: undefined | string[];
   }>({ show: false, data: undefined });
+  const frameLength = project.frames.length - 1;
 
   const handleStart = async () => {
     if (!actx) return;
@@ -533,6 +534,8 @@ export default function ProjectView({ project }: ProjectProps) {
                 <ControlBtnsT1
                   handleBackward={handleBackward}
                   handleForward={handleForward}
+                  frameIndex={frameIndex}
+                  frameLength={frameLength}
                 />
               </>
             ) : (
