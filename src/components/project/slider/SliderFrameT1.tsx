@@ -48,10 +48,11 @@ export const SliderFrameT1 = ({ frame }: { frame: IFrame }) => {
                     isLarge,
                     frame.images[0].position
                   )}
-                  className={`  z-10 w-full  touch-none md:aspect-[${
-                    img.width
-                  }/${img.height}]  ${getImageSize(img.size)} ${getImageLayout(
-                    img.position
+                  className={`z-10 w-full  touch-none md:aspect-[${img.width}/${
+                    img.height
+                  }]  ${getImageSize(img.size)} ${getImageLayout(
+                    img.position,
+                    isZoomed
                   )}`}
                   key={img.url}
                 >
@@ -96,9 +97,12 @@ const getAnimationScaleOrigin = (mediaSize: boolean, position: string) => {
   return {};
 };
 
-const getImageLayout = (position: "left" | "center" | "right" | "cover") => {
-  const left = `mx-4 md:ml-[15%] md:mr-auto`;
-  const right = "mx-4 md:mr-[15%] md:ml-auto";
+const getImageLayout = (
+  position: "left" | "center" | "right" | "cover",
+  isZoomed: boolean
+) => {
+  const left = isZoomed ? "mx-4 md:mx-4" : `mx-4 md:ml-[15%] md:mr-auto`;
+  const right = isZoomed ? "mx-4 md:mx-4" : "mx-4 md:mr-[15%] md:ml-auto";
   const center = "mx-4 md:mx-4";
   const cover = "mx-4 md:m-0";
 
