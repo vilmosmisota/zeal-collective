@@ -19,7 +19,6 @@ module.exports = {
       transparent: "#ffffff00",
     },
     fontFamily: {
-      logo: "'Abril Fatface', cursive",
       serifHeading: "'Playfair Display', serif",
       sansHeading: "'Raleway', sans-serif",
       bodyFont: "'Roboto', sans-serif",

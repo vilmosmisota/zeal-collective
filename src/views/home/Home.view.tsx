@@ -41,18 +41,18 @@ const projectsMeta = [
     tags: ["black and white, surf, community"],
     slug: "echoes",
   },
-  {
-    featuredImg: {
-      src: "",
-      title: "image2",
-      width: 1300,
-      height: 868,
-    },
-    artist: "John Doe",
-    title: "Everyday life",
-    description:
-      "Lorem ipsum dolor sit amet. Vel molestias voluptatem et molestias possimus non tempore",
-    tags: ["colours, ambient, drama"],
-    slug: "everyday-life",
-  },
+  // {
+  //   featuredImg: {
+  //     src: "",
+  //     title: "image2",
+  //     width: 1300,
+  //     height: 868,
+  //   },
+  //   artist: "John Doe",
+  //   title: "Everyday life",
+  //   description:
+  //     "Lorem ipsum dolor sit amet. Vel molestias voluptatem et molestias possimus non tempore",
+  //   tags: ["colours, ambient, drama"],
+  //   slug: "everyday-life",
+  // },
 ];

@@ -113,7 +113,7 @@ const sEffects: TSounds[][] = [
     {
       name: "ocean-pulse",
       path: "/sounds/effects/ocean-wave-pulse.flac",
-      gain: 0.3,
+      gain: 0.2,
       pan: -1,
       loop: true,
       repeat: false,
@@ -161,7 +161,7 @@ const sEffects: TSounds[][] = [
     {
       name: "crushing-wave",
       path: "/sounds/effects/crushing-wave.flac",
-      gain: 0.2,
+      gain: 0.1,
       pan: -1,
       loop: false,
       repeat: false,
@@ -278,12 +278,14 @@ export default function ProjectView({ project }: ProjectProps) {
     show: boolean;
     data: undefined | string[];
   }>({ show: false, data: undefined });
+  const [isZoomed, setIsZoomed] = useState(false);
   const frameLength = project.frames.length - 1;
 
   const handleStart = async () => {
     if (!actx) return;
 
     setIsStarted(true);
+    document.body.style.overflow = "hidden";
     const mgain = actx.createGain();
     const mAnalyser = actx.createAnalyser();
     mgain.gain.value = masterVolume;
@@ -305,6 +307,7 @@ export default function ProjectView({ project }: ProjectProps) {
   const handleForward = async () => {
     const limit = project.frames.length - 1;
     if (frameIndex === limit) return;
+    setIsZoomed(false);
     setFrameIndex((prev) => prev + 1);
     playSoundtrack(frameIndex + 1);
     if (!actx) return;
@@ -325,6 +328,7 @@ export default function ProjectView({ project }: ProjectProps) {
 
   const handleBackward = () => {
     if (frameIndex === 0) return;
+    setIsZoomed(false);
     setFrameIndex((prev) => prev - 1);
     playSoundtrack(frameIndex - 1);
     if (!actx) return;
@@ -385,6 +389,7 @@ export default function ProjectView({ project }: ProjectProps) {
 
       audioCtx.close().catch((err) => console.warn(err));
       setActx(null);
+      document.body.style.overflow = "inherit";
     };
   }, []);
 
@@ -457,7 +462,11 @@ export default function ProjectView({ project }: ProjectProps) {
               ></motion.div>
             )}
             <GrainCanvas />
-            <SliderFrameT1 frame={project.frames[frameIndex]} />
+            <SliderFrameT1
+              frame={project.frames[frameIndex]}
+              isZoomed={isZoomed}
+              handleZoom={() => setIsZoomed(!isZoomed)}
+            />
             {project.frames.length > frameIndex + 1 && (
               <SliderFrameToPreloadT1 frame={project.frames[frameIndex + 1]} />
             )}

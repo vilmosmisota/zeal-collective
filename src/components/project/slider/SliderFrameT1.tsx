@@ -1,16 +1,33 @@
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion, useAnimation } from "framer-motion";
 import Image from "next/future/image";
 import { MutableRefObject, useEffect, useRef, useState } from "react";
 import { IFrame } from "../../../providers/supabase/interfaces/I_supabase";
 import useMediaQuery, { useWindowDimensions } from "../../../utils/hooks";
 import ScaleUpBtn from "../../buttons/ScaleUpBtn";
 
-export const SliderFrameT1 = ({ frame }: { frame: IFrame }) => {
+export const SliderFrameT1 = ({
+  frame,
+  isZoomed,
+  handleZoom,
+}: {
+  frame: IFrame;
+  isZoomed: boolean;
+  handleZoom: () => void;
+}) => {
   const imgRef = useRef<HTMLDivElement | null>(null);
   const { vw, windowHeight } = useAutoSrcsetSize(imgRef, frame.id);
   const isLarge = useMediaQuery("(min-width: 768px)");
-  const [isZoomed, setIsZoomed] = useState(false);
+  const animationControls = useAnimation();
   const isDynamic = isLarge && !isZoomed;
+
+  useEffect(() => {
+    let ignore = false;
+    if (ignore) return;
+
+    return () => {
+      ignore = true;
+    };
+  }, []);
 
   return (
     <AnimatePresence>
@@ -22,21 +39,20 @@ export const SliderFrameT1 = ({ frame }: { frame: IFrame }) => {
         <div
           className={` md:w-[90%] w-full  flex items-center justify-center h-[80%] overflow-hidden transition-all duration-500 `}
         >
-          <div
-            className={`${
-              isZoomed ? "scale-[200%]" : "scale-[100%]"
-            } w-full h-full flex items-center justify-center  transition-all duration-500`}
+          <motion.div
+            animate={
+              isZoomed
+                ? { scale: 2, transition: { duration: 0.5, delay: 0.5 } }
+                : { scale: 1, transition: { duration: 0.5, delay: 0 } }
+            }
+            className={`w-full h-full flex items-center justify-center`}
           >
             {frame.images.map((img, i) => {
               return (
                 <motion.div
                   variants={animateFrame}
                   custom={i}
-                  animate={
-                    !isLarge && frame.images[0].position !== "center"
-                      ? "animateScaleUp"
-                      : "animateDefault"
-                  }
+                  animate={getScaleAnimation(isLarge, frame.images[0].position)}
                   initial={
                     !isLarge && frame.images[0].position !== "center"
                       ? "initScaleUp"
@@ -48,7 +64,9 @@ export const SliderFrameT1 = ({ frame }: { frame: IFrame }) => {
                     isLarge,
                     frame.images[0].position
                   )}
-                  className={`z-10 w-full  touch-none md:aspect-[${img.width}/${
+                  className={`${
+                    isZoomed ? getZoomPosition(frame.images[0].position) : ""
+                  }  z-10 w-full  touch-none md:aspect-[${img.width}/${
                     img.height
                   }]  ${getImageSize(img.size)} ${getImageLayout(
                     img.position,
@@ -70,11 +88,11 @@ export const SliderFrameT1 = ({ frame }: { frame: IFrame }) => {
                 </motion.div>
               );
             })}
-          </div>
+          </motion.div>
         </div>
-        <div className="absolute z-50 bottom-[70px] right-10">
-          <ScaleUpBtn handleClick={() => setIsZoomed(!isZoomed)} />
-        </div>
+        {/* <div className="absolute z-50 bottom-[70px] right-10">
+          <ScaleUpBtn handleClick={handleZoom} />
+        </div> */}
       </motion.div>
     </AnimatePresence>
   );
@@ -82,10 +100,25 @@ export const SliderFrameT1 = ({ frame }: { frame: IFrame }) => {
 
 // Hooks and helpers:
 
+const getZoomPosition = (position: "left" | "center" | "right" | "cover") => {
+  if (position === "center" || position === "cover") {
+    return "";
+  }
+  if (position === "left") {
+    return "translate-x-[45%]";
+  }
+  if (position === "right") {
+    return "-translate-x-[45%]";
+  }
+
+  return "";
+};
+
 const getScaleAnimation = (isLarge: boolean, position: string) => {
   const scaleAnimation = !isLarge && position !== "center";
 
-  if (scaleAnimation) return;
+  if (scaleAnimation) return "animateScaleUp";
+  return "animateDefault";
 };
 
 const getAnimationScaleOrigin = (mediaSize: boolean, position: string) => {
@@ -101,8 +134,8 @@ const getImageLayout = (
   position: "left" | "center" | "right" | "cover",
   isZoomed: boolean
 ) => {
-  const left = isZoomed ? "mx-4 md:mx-4" : `mx-4 md:ml-[15%] md:mr-auto`;
-  const right = isZoomed ? "mx-4 md:mx-4" : "mx-4 md:mr-[15%] md:ml-auto";
+  const left = `mx-4 md:ml-[15%] md:mr-auto`;
+  const right = "mx-4 md:mr-[15%] md:ml-auto";
   const center = "mx-4 md:mx-4";
   const cover = "mx-4 md:m-0";
 

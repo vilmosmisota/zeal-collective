@@ -4,7 +4,7 @@ export default function Logo({ theme }: { theme: "dark" | "light" }) {
       <p
         className={`${
           theme === "dark" ? "text-zinc800" : "text-peach400"
-        } capitalize font-logo text-2xl text-center p-0 m-0 leading-none tracking-wider`}
+        } capitalize font-serifHeading italic text-2xl text-center p-0 m-0 leading-none tracking-wider`}
       >
         Cinery
       </p>
